@@ -28,7 +28,7 @@ respects for all of the code used other than "OpenSSL".
 #ifndef NEWTRANSFERDLG_H
 #define NEWTRANSFERDLG_H
 #include <QWidget>
-//#include "ui_NewTransferDlg.h"
+#include "Proxy.h"
 #include "Auth.h"
 #include "Transfer.h"
 #include <QDir>
@@ -52,11 +52,27 @@ public:
         m_auth.strUser = user;
         m_auth.strPassword = pass;
     }
+
+    Q_INVOKABLE void addProxy(int index, QString name,QString ip,QString port, QString user, QString pass) {
+        m_listProxy = Proxy::loadProxys();
+        m_proxy.uuid = QUuid::createUuid();
+        m_proxy.nType = (Proxy::ProxyType) index;
+        m_proxy.strName = name;
+        m_proxy.strIP = ip;
+        m_proxy.nPort = port.toUInt();
+        m_proxy.strUser = user;
+        m_proxy.strPassword = pass;
+
+
+    }
+
+    Proxy m_proxy;
     Auth m_auth;
 protected:
     static Queue* getQueue(int index, bool lock = true);
     void doneQueue(Queue* q, bool unlock = true, bool refresh = true);
-
+private:
+    QList<Proxy > m_listProxy;
 };
 
 

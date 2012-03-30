@@ -4,10 +4,12 @@ import com.nokia.meego 1.0
 Page {
     id : listViewPage
     tools: commonTools
-    //state: "active"
+    //state: "details"
 
     ListView {
         id: listTransfers
+        width:parent.width
+        height: parent.height
 
         Component {
             id: itemComponent
@@ -18,12 +20,22 @@ Page {
                 intern_progress: fProgress
                 intern_actual_speed: model.speed
                 intern_running: model.state
-
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        listTransfers.currentIndex = index
+                        listViewPage.state= "details"
+                    }
+                }
             }
+
         }
-        anchors.top: parent.top
-        anchors.topMargin: 40
-        anchors.fill: parent
+
+
+        anchors.top: headerLabel.bottom
+        anchors.topMargin: 5
+        anchors.right: parent.right
+        anchors.left: parent.left
         clip: true
         model: itemList
         delegate: itemComponent
@@ -36,34 +48,88 @@ Page {
 
         Timer {
             id: refresh
-            interval: 1000; running: true; repeat: true
+            interval: 1000; running: false; repeat: true
             onTriggered:  itemList.refresh()
         }
     }
 
-    Rectangle{
-        width:parent.width
-        height:50
-        id: test
-        color: "silver"
-        //border.color: "black"
 
-        Label {
-            id: name
-            color: "white"
-            anchors.left: parent.left
-            anchors.leftMargin: 5
-            font.pixelSize: 32
-            text: qsTr("FatRat Mobile")
+    Rectangle {
+        id: headerLabel
+        width: parent ? parent.width : 480;
+        height: 80
+        color: "silver"
+        Image {
+            id: icon
+            width: 80
+
+            anchors {
+                top: parent.top
+                left: parent.left
+                bottom: parent.bottom
+                margins: 10
+            }
+
+            smooth: true
+            source: "images/FatRatMobile80.png"
+            fillMode: Image.PreserveAspectFit
         }
+        Text {
+            anchors {
+                left: icon.right
+                right: parent.right
+                verticalCenter: parent.verticalCenter
+                leftMargin: 10
+                rightMargin: 10
+            }
+            color: "white"
+            elide: Text.ElideRight
+
+            font {
+                family: platformLabelStyle.fontFamily
+                pixelSize: 32
+            }
+            text: "FatRat"
+        }
+
     }
-    Label {
-        id: speed
-        color: "white"
-        anchors.right: parent.right
-        anchors.rightMargin: 5
-        font.pixelSize: 32
-        text: qsTr("0 kb/s")
+
+    ToolBarLayout {
+        id: commonTools
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+            bottom: parent.bottom
+        //    topMargin: 10
+        }
+        visible: true
+        ToolIcon {
+            iconId: "toolbar-add"
+            onClicked: pageStack.push(Qt.resolvedUrl("NewTransferPage.qml"),{state:"download"})
+
+        }
+        ToolIcon {
+            iconId: "toolbar-mediacontrol-play"
+            onClicked: {queue.resumeAll()
+                        listViewPage.state = "active"
+            }
+        }
+        ToolIcon {
+            iconId: "toolbar-mediacontrol-pause"
+            onClicked: {queue.stopAll()
+                        //itemList.refresh()
+                        listViewPage.state = "paused"
+                       }
+        }
+        ToolIcon {
+            iconId: "toolbar-delete"
+            visible: false
+            onClicked: pageStack.push(Qt.resolvedUrl("yesno.qml"))
+        }
+        ToolIcon {
+            platformIconId: "toolbar-view-menu"
+            anchors.right: (parent === undefined) ? undefined : parent.right
+            onClicked: (myMenu.status === DialogStatus.Closed) ? myMenu.open() : myMenu.close()
+        }
     }
 
     states: [
@@ -77,9 +143,13 @@ Page {
         },
         State {
             name: "details"
-            PropertyChanges {target: listTransfers; visible: false}
+         //   PropertyChanges {target: listTransfers; visible: false}
+            //PropertyChanges {target: commonTools.children.objectName.; visible: false}
         }
 
     ]
+
+
+
 
 }

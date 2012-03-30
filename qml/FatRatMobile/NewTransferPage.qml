@@ -5,24 +5,9 @@ Page {
 
     id: newTransferPage
 
-    property string test
-
-    Text {
-        id: header
-        anchors.top: parent.top
-        anchors.topMargin: 22
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.leftMargin: 10
-        anchors.rightMargin: 10
-        height: 40
-        text: qsTr("New file transfer")
-        font.pixelSize: 34
-    }
-
     Row {
         id: row
-        anchors.top: header.bottom
+        anchors.top: headerLabel.bottom
         anchors.left: parent.left
         anchors.leftMargin: 10
         anchors.topMargin: 5
@@ -294,6 +279,45 @@ Page {
                                                       pauseCheckBox.checked)
                        }
         }
+    }
+    Rectangle {
+        id: headerLabel
+        width: parent ? parent.width : 480;
+        height: 80
+        color: "silver"
+        Image {
+            id: icon
+            width: 80
+
+            anchors {
+                top: parent.top
+                left: parent.left
+                bottom: parent.bottom
+                margins: 10
+            }
+
+            smooth: true
+            source: "images/FatRatMobile80.png"
+            fillMode: Image.PreserveAspectFit
+        }
+        Text {
+            anchors {
+                left: icon.right
+                right: parent.right
+                verticalCenter: parent.verticalCenter
+                leftMargin: 10
+                rightMargin: 10
+            }
+            color: "white"
+            elide: Text.ElideRight
+
+            font {
+                //family: platformLabelStyle.fontFamily
+                pixelSize: 32
+            }
+            text: "New transfer"
+        }
+
     }
 
     states: [
