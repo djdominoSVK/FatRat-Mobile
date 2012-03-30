@@ -25,40 +25,41 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef NEWTRANSFERDLG_H
-#define NEWTRANSFERDLG_H
-#include <QWidget>
-//#include "ui_NewTransferDlg.h"
 #include "Auth.h"
-#include "Transfer.h"
-#include <QDir>
+#include <QSettings>
 
-class NewTransferDlg : public QWidget
+extern QSettings* g_settings;
+
+QList<Auth> Auth::loadAuths()
 {
-Q_OBJECT
+	QList<Auth> r;
+	
+	int count = g_settings->beginReadArray("httpftp/auths");
+	for(int i=0;i<count;i++)
+	{
+		Auth auth;
+		g_settings->setArrayIndex(i);
+		
+		auth.strRegExp = g_settings->value("regexp").toString();
+		auth.strUser = g_settings->value("user").toString();
+		auth.strPassword = g_settings->value("password").toString();
+		
+		r << auth;
+	}
+	g_settings->endArray();
+	
+	return r;
+}
 
-public:
-    NewTransferDlg();
-    NewTransferDlg(QWidget* parent): QWidget(parent) {}
-
-    Q_INVOKABLE QString addTextFile();
-    Q_INVOKABLE QString browse(QString current);
-    Q_INVOKABLE QString browse2();
-    Q_INVOKABLE void createTransfer(QString m_strURIs,bool downloadTrueUploadFalse,int m_nClass,QString m_strDestination,
-                                        int m_nDownLimit,int m_nUpLimit,bool m_bPaused);
-
-    Q_INVOKABLE void authData(QString regExp, QString user, QString pass) {
-        m_auth.strRegExp = regExp;
-        m_auth.strUser = user;
-        m_auth.strPassword = pass;
-    }
-    Auth m_auth;
-protected:
-    static Queue* getQueue(int index, bool lock = true);
-    void doneQueue(Queue* q, bool unlock = true, bool refresh = true);
-
-};
-
-
-
-#endif
+void Auth::saveAuths(const QList<Auth>& auths)
+{
+	g_settings->beginWriteArray("httpftp/auths");
+	for(int i=0;i<auths.size();i++)
+	{
+		g_settings->setArrayIndex(i);
+		g_settings->setValue("regexp", auths[i].strRegExp);
+		g_settings->setValue("user", auths[i].strUser);
+		g_settings->setValue("password", auths[i].strPassword);
+	}
+	g_settings->endArray();
+}

@@ -25,40 +25,41 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef NEWTRANSFERDLG_H
-#define NEWTRANSFERDLG_H
-#include <QWidget>
-//#include "ui_NewTransferDlg.h"
-#include "Auth.h"
-#include "Transfer.h"
-#include <QDir>
+#ifndef SETTINGS_H
+#define SETTINGS_H
+#include <QString>
+#include <QIcon>
+#include <QSettings>
+//#include "config.h"
+//#include "WidgetHostChild.h"
+//#include "DelayedIcon.h"
 
-class NewTransferDlg : public QWidget
+struct SettingsItem;
+extern QVector<SettingsItem> g_settingsPages;
+extern QSettings* g_settings;
+
+struct SettingsItem
 {
-Q_OBJECT
+    //SettingsItem() : lpfnCreate(0), pfnApply(0) {}
 
-public:
-    NewTransferDlg();
-    NewTransferDlg(QWidget* parent): QWidget(parent) {}
-
-    Q_INVOKABLE QString addTextFile();
-    Q_INVOKABLE QString browse(QString current);
-    Q_INVOKABLE QString browse2();
-    Q_INVOKABLE void createTransfer(QString m_strURIs,bool downloadTrueUploadFalse,int m_nClass,QString m_strDestination,
-                                        int m_nDownLimit,int m_nUpLimit,bool m_bPaused);
-
-    Q_INVOKABLE void authData(QString regExp, QString user, QString pass) {
-        m_auth.strRegExp = regExp;
-        m_auth.strUser = user;
-        m_auth.strPassword = pass;
-    }
-    Auth m_auth;
-protected:
-    static Queue* getQueue(int index, bool lock = true);
-    void doneQueue(Queue* q, bool unlock = true, bool refresh = true);
-
+	// icon to show in the settings dialog (GUI only)
+    //DelayedIcon icon;
+	// title to show in the settings dialog (GUI and WebUI)
+    QString title;
+	// function to call to create a settings subdialog (GUI only)
+    //WidgetHostChild* (*lpfnCreate)(QWidget*, QObject*);
+	// function to call to apply or settings changes (GUI and WebUI), optional
+	void (*pfnApply)();
 };
 
 
+QVariant getSettingsDefault(QString id);
+QVariant getSettingsValue(QString id, QVariant def = QVariant());
+QList<QMap<QString, QVariant> > getSettingsArray(QString id);
+void setSettingsValue(QString id, QVariant value);
+void setSettingsArray(QString id, QList<QMap<QString, QVariant> >& value);
+
+void initSettingsDefaults(QString manualPath = QString());
+void exitSettings();
 
 #endif

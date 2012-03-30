@@ -41,10 +41,6 @@ USA.
 #include <QReadWriteLock>
 #include <QDialog>
 #include "LimitedSocket.h"
-//#include "ui_HttpOptsWidget.h"
-//#include "ui_HttpUrlOptsDlg.h"
-//#include "WidgetHostChild.h"
-//#include "fatrat.h"
 
 class GeneralDownload : public Transfer
 {

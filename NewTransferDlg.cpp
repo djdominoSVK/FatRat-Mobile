@@ -116,6 +116,19 @@ void NewTransferDlg::createTransfer(QString m_strURIs,bool downloadTrueUploadFal
              source = uris[i].trimmed();
              destination = m_strDestination;
 
+             if(!m_auth.strUser.isEmpty())
+             {
+                 QString& obj = (myMode == Transfer::Download) ? source : destination;
+
+                 QUrl url = obj;
+                 if(url.userInfo().isEmpty())
+                 {
+                     url.setUserName(m_auth.strUser);
+                     url.setPassword(m_auth.strPassword);
+                 }
+                 obj = url.toString();
+             }
+
 
              d->init(source, destination);
              d->setUserSpeedLimits(m_nDownLimit,m_nUpLimit);
@@ -188,8 +201,10 @@ QString NewTransferDlg::addTextFile()
             QString output = file.readAll();
             return output;
         }
+        return "";
 
 	}
+    return "";
 }
 
 
@@ -198,6 +213,7 @@ QString NewTransferDlg::browse(QString current)
     QString dir = QFileDialog::getExistingDirectory(this, "FatRat", current);
 	if(!dir.isNull())
         return dir;
+    return "";
 }
 
 QString NewTransferDlg::browse2()

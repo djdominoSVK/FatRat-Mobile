@@ -25,40 +25,16 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-#ifndef NEWTRANSFERDLG_H
-#define NEWTRANSFERDLG_H
-#include <QWidget>
-//#include "ui_NewTransferDlg.h"
-#include "Auth.h"
-#include "Transfer.h"
-#include <QDir>
+#ifndef AUTH_H
+#define AUTH_H
+#include <QString>
+#include <QList>
 
-class NewTransferDlg : public QWidget
+struct Auth
 {
-Q_OBJECT
-
-public:
-    NewTransferDlg();
-    NewTransferDlg(QWidget* parent): QWidget(parent) {}
-
-    Q_INVOKABLE QString addTextFile();
-    Q_INVOKABLE QString browse(QString current);
-    Q_INVOKABLE QString browse2();
-    Q_INVOKABLE void createTransfer(QString m_strURIs,bool downloadTrueUploadFalse,int m_nClass,QString m_strDestination,
-                                        int m_nDownLimit,int m_nUpLimit,bool m_bPaused);
-
-    Q_INVOKABLE void authData(QString regExp, QString user, QString pass) {
-        m_auth.strRegExp = regExp;
-        m_auth.strUser = user;
-        m_auth.strPassword = pass;
-    }
-    Auth m_auth;
-protected:
-    static Queue* getQueue(int index, bool lock = true);
-    void doneQueue(Queue* q, bool unlock = true, bool refresh = true);
-
+	QString strRegExp, strUser, strPassword;
+	static QList<Auth> loadAuths();
+	static void saveAuths(const QList<Auth>& auths);
 };
-
-
 
 #endif

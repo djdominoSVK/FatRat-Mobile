@@ -28,9 +28,27 @@ CONFIG += qdeclarative-boostable
 
 # Add dependency to Symbian components
 # CONFIG += qt-components
+QT += xml \
+      network \
+      core gui declarative
 
 # The .cpp file which was generated for your project. Feel free to hack it.
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    TransfersModel.cpp \
+    TransferFactory.cpp \
+    Transfer.cpp \
+    RowData.cpp \
+    Queue.cpp \
+    NewTransferDlg.cpp \
+    Logger.cpp \
+    LimitedSocket.cpp \
+    engines/FtpClient.cpp \
+    engines/FtpUpload.cpp \
+    engines/GeneralDownload.cpp \
+    engines/HttpClient.cpp \
+    Proxy.cpp \
+    Settings.cpp \
+    Auth.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -44,3 +62,23 @@ OTHER_FILES += \
     qtc_packaging/debian_harmattan/control \
     qtc_packaging/debian_harmattan/compat \
     qtc_packaging/debian_harmattan/changelog
+
+HEADERS += \
+    TransfersModel.h \
+    TransferFactory.h \
+    Transfer.h \
+    RuntimeException.h \
+    RowData.h \
+    Queue.h \
+    NewTransferDlg.h \
+    main.h \
+    Logger.h \
+    LimitedSocket.h \
+    engines/FakeDownload.h \
+    engines/FtpClient.h \
+    engines/FtpUpload.h \
+    engines/GeneralDownload.h \
+    engines/HttpClient.h \
+    Proxy.h \
+    Settings.h \
+    Auth.h

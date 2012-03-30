@@ -63,11 +63,12 @@ Page {
          anchors.left: sourceText.right
          anchors.leftMargin: 10
          anchors.topMargin: 5
-         text: "Add Special"
+         text: "Add links from textfile"
          width: 280
          iconSource: "images/button_add.png"
          onClicked: {
-             addFilesSingleSelectionDialog.open();
+             //addFilesSingleSelectionDialog.open();
+             sourceInput.text = newTransfer.addTextFile()
          }
      }
 
@@ -244,14 +245,13 @@ Page {
             if(selectedIndex==0){
                 //sourceInput.text = newTransfer.browse2;
                 test=newTransfer.browse2
-                sourceInput.text = test
             }
             if(selectedIndex==1){
                 //sourceInput.text = newTransfer.browse2;
                 test=newTransfer.addTextFile
                 sourceInput.text = test
             }
-            //selectedIndex= -1;
+            selectedIndex= -1;
 
         }
     }
@@ -300,7 +300,9 @@ Page {
         State {
             name: "download"
             PropertyChanges {target: sourceText; text:"URIs: " }
-            PropertyChanges {target: addFilesSingleDialogButton ; text:"Add Special"; onClicked: {addFilesSingleSelectionDialog.open()} }
+            PropertyChanges {target: addFilesSingleDialogButton ; text:"Add contents of text file"; onClicked: {
+                    test = newTransfer.addTextFile
+                    sourceInput.text = test} }
             PropertyChanges {target: transferDownloadSingleSelectionDialogButton; visible: true }
             PropertyChanges {target: transferDownloadSingleSelectionDialog; visible: true }
             PropertyChanges {target: transferType; visible: true }

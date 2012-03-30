@@ -16,7 +16,7 @@ Dialog {
         }
 
         TextField{
-            id: titleField
+            id: userField
             anchors{
                 right: parent.right; left: parent.left
             }
@@ -30,7 +30,7 @@ Dialog {
         }
 
         TextField{
-            id: passField
+            id: passwordField
             echoMode: TextInput.Password
             anchors{
                 right: parent.right; left: parent.left
@@ -41,8 +41,14 @@ Dialog {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: -15
         anchors { left: parent.left; right:  parent.right; margins: 15 }
-        Button { text: "Ok" ; onClicked: userAuthDialog.accept()}
+        Button { text: "Ok" ; onClicked: {
+                if ((userField.text != "") && (passwordField.text != "")){
+                    newTransfer.authData("",userField.text,passwordField.text)
+                    userAuthDialog.accept()
+                }
+            }
+        }
         Button { text: "Cancel"; onClicked: userAuthDialog.reject() }
-    }
 
+    }
 }

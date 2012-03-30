@@ -21,8 +21,6 @@ USA.
 
 
 #include "FtpUpload.h"
-
-
 #include "RuntimeException.h"
 #include <QFileInfo>
 #include <QMenu>
