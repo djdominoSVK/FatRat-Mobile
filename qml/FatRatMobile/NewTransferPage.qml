@@ -2,7 +2,7 @@ import QtQuick 1.0
 import com.nokia.meego 1.0
 
 Page {
-
+    property string test
     id: newTransferPage
 
     Row {
@@ -53,7 +53,8 @@ Page {
          iconSource: "images/button_add.png"
          onClicked: {
              //addFilesSingleSelectionDialog.open();
-             sourceInput.text = newTransfer.addTextFile()
+             test =   newTransfer.addTextFile()
+             if (test != ""){sourceInput.text= text}
          }
      }
 
@@ -156,7 +157,7 @@ Page {
         anchors.topMargin: 35
         anchors.left: parent.left
         anchors.leftMargin: 10
-        text: qsTr("Minimum speed: ")
+        text: qsTr("Down speed limit (kB/s): ")
         font.pixelSize: 32
     }
 
@@ -174,7 +175,7 @@ Page {
         anchors.topMargin: 10
         anchors.left: parent.left
         anchors.leftMargin: 10
-        text: qsTr("Maximum speed: ")
+        text: qsTr("Up speed limit (kB/s):  ")
         font.pixelSize: 32
     }
 
@@ -198,18 +199,6 @@ Page {
         checked: false
     }
 
-//    Button{
-//        id: testButton
-//        anchors.left: pauseCheckBox.right
-//        anchors.top: maxSpeed.bottom
-//        onClicked:                            newTransfer.createTransfer(sourceInput.text,
-//                                                                         radioButton_download.checked,
-//                                                                         -1,
-//                                                                         destinationTextInput.text,
-//                                                                         parseInt(minSpeedInput.text),
-//                                                                         parseInt(maxSpeedInput.text),
-//                                                                         pauseCheckBox.checked)
-//    }
 
     UserAuthDialog{
         id: userAuthDialog
@@ -274,9 +263,10 @@ Page {
                                                       radioButton_download.checked,
                                                       -1,
                                                       destinationTextInput.text,
-                                                      parseInt(minSpeedInput.text),
-                                                      parseInt(maxSpeedInput.text),
+                                                      (parseInt(minSpeedInput.text)*1024),
+                                                      (parseInt(maxSpeedInput.text)*1024),
                                                       pauseCheckBox.checked)
+                       appWindow.pageStack.pop()
                        }
         }
     }
@@ -318,6 +308,7 @@ Page {
             text: "New transfer"
         }
 
+
     }
 
     states: [
@@ -325,8 +316,9 @@ Page {
             name: "download"
             PropertyChanges {target: sourceText; text:"URIs: " }
             PropertyChanges {target: addFilesSingleDialogButton ; text:"Add contents of text file"; onClicked: {
-                    test = newTransfer.addTextFile
-                    sourceInput.text = test} }
+                   // test = newTransfer.addTextFile
+                   // sourceInput.text = test}
+                sourceInput.text=newTransfer.addTextFile}}
             PropertyChanges {target: transferDownloadSingleSelectionDialogButton; visible: true }
             PropertyChanges {target: transferDownloadSingleSelectionDialog; visible: true }
             PropertyChanges {target: transferType; visible: true }

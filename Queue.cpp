@@ -42,8 +42,8 @@ QReadWriteLock g_queuesLock(QReadWriteLock::Recursive);
 bool Queue::m_bLoaded = false;
 
 Queue::Queue()
-	: m_nDownLimit(0), m_nUpLimit(0), m_nDownTransferLimit(1), m_nUpTransferLimit(1),
-	m_nDownAuto(0), m_nUpAuto(0), m_bUpAsDown(false), m_lock(QReadWriteLock::Recursive)
+    : m_nDownLimit(0), m_nUpLimit(0), m_nDownTransferLimit(-1), m_nUpTransferLimit(-1),
+    m_nDownAuto(0), m_nUpAuto(0), m_bUpAsDown(true), m_lock(QReadWriteLock::Recursive)
 {
 	memset(&m_stats, 0, sizeof m_stats);
 	m_uuid = QUuid::createUuid();
@@ -408,7 +408,7 @@ void Queue::removeWithData(int n, bool nolock)
 	QString path = d->dataPath(true);
 	
 	if(!path.isEmpty() && d->primaryMode() == Transfer::Download)
-//		recursiveRemove(path);
+        recursiveRemove(path);
 	
 	d->deleteLater();
 }
@@ -515,3 +515,63 @@ void Queue::resumeAll()
 	}
 }
 
+class RecursiveRemove : public QThread
+{
+public:
+    RecursiveRemove(QString what) : m_what(what)
+    {
+        start();
+    }
+    void run()
+    {
+        connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
+        work(m_what);
+    }
+    static bool work(QString what)
+    {
+        qDebug() << "recursiveRemove" << what;
+        if(!QFile::exists(what))
+            return true; // silently ignore
+        if(!QFile::remove(what))
+        {
+            QDir dir(what);
+            if(!dir.exists())
+            {
+                qDebug() << "Not a directory:" << what;
+                return false;
+            }
+
+            QStringList contents;
+            contents = dir.entryList();
+
+            foreach(QString item, contents)
+            {
+                if(item != "." && item != "..")
+                {
+                    if(!work(dir.filePath(item)))
+                        return false;
+                }
+            }
+
+            QString name = dir.dirName();
+            if(!dir.cdUp())
+            {
+                qDebug() << "Cannot cdUp:" << what;
+                return false;
+            }
+            if(!dir.rmdir(name))
+            {
+                qDebug() << "Cannot rmdir:" << name;
+                return false;
+            }
+        }
+        return true;
+    }
+private:
+    QString m_what;
+};
+
+void Queue::recursiveRemove(QString what)
+{
+    new RecursiveRemove(what);
+}

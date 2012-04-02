@@ -16,49 +16,21 @@ public:
     {
         const qint64 total = t->total();
         m_fProgress = (total) ? 100.0/t->total()*t->done() : 0;
-        m_progress = (total) ? QString("%1%").arg(m_fProgress, 0, 'f', 1) : QString();
+       // m_progress = (total) ? QString("%1%").arg(m_fProgress, 0, 'f', 1) : QString();
 
-        //if(t->total())
-        //    m_progress = QString(tr("completed %1 from %2 (%3%)")).arg(formatSize(t->done())).arg(formatSize(t->total())).arg(100.0/d->total()*t->done(), 0, 'f', 1);
-        //else
-        //    m_progress = QString(tr("completed %1, total size unknown")).arg(formatSize(t->done()));
+        if(t->total())
+            m_progress = QString("%1 from %2 (%3%)").arg(formatSize(t->done(),false)).arg(formatSize(t->total(),false)).arg(100.0/t->total()*t->done(), 0, 'f', 1);
+        else
+            m_progress = QString("%1, total size unknown").arg(formatSize(t->done(),false));
 
 
         m_size = (total) ? formatSize(t->total(),false) : QString("?");
-//        if(t->isActive())
-//        {
-//            int down,up;
-//            t->speeds(down,up);
-
-//            if(down || t->mode() == Transfer::Download)
-//                m_speedDown = formatSize(down, true);
-//            if(up || t->mode() == Transfer::Upload)
-//                m_speedUp = formatSize(up, true);
-
-//            if(t->total())
-//            {
-//                QString s;
-//                int down,up;
-//                qulonglong totransfer = t->total() - t->done();
-
-//                t->speeds(down,up);
-
-//                if(t->primaryMode() == Transfer::Download)
-//                {
-//                    if(down)
-//                        m_timeLeft = formatTime(totransfer/down);
-//                }
-//                else if(up)
-//                    m_timeLeft = formatTime(totransfer/up);
-//            }
-//        }
-
 
         if(t->isActive())
         {
             int down,up;
             t->speeds(down,up);
-            Transfer::Mode mode = t->primaryMode();
+            //Transfer::Mode mode = t->primaryMode();
             //QString speed;
 
             if(down)

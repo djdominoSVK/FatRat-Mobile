@@ -139,6 +139,11 @@ void NewTransferDlg::createTransfer(QString m_strURIs,bool downloadTrueUploadFal
              foreach(Transfer* d, listTransfers)
                  d->setState(Transfer::Waiting);
          }
+         else
+         {
+             foreach(Transfer* d, listTransfers)
+                 d->setState(Transfer::Active);
+         }
             queue = getQueue(0, false);
          if(!queue)
              throw RuntimeException(tr("Internal error."));

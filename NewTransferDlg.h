@@ -30,6 +30,7 @@ respects for all of the code used other than "OpenSSL".
 #include <QWidget>
 #include "Proxy.h"
 #include "Auth.h"
+#include "Queue.h"
 #include "Transfer.h"
 #include <QDir>
 
@@ -62,8 +63,6 @@ public:
         m_proxy.nPort = port.toUInt();
         m_proxy.strUser = user;
         m_proxy.strPassword = pass;
-
-
     }
 
     Proxy m_proxy;
