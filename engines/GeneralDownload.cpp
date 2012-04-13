@@ -101,7 +101,7 @@ void GeneralDownload::init(QString uri,QString dest)
 //		}
 //	}
 	
-//	obj.proxy = g_settings->value("httpftp/defaultproxy").toString();
+    obj.proxy = g_settings->value("httpftp/defaultproxy").toString();
 	obj.ftpMode = FtpPassive;
 	
 	m_dir = dest;
@@ -234,7 +234,7 @@ void GeneralDownload::changeActive(bool nowActive)
 			
 			QString scheme = m_urls[m_nUrl].url.scheme();
 			
-			if(scheme == "http" || scheme == "https" || (Proxy::getProxy(m_urls[m_nUrl].proxy).nType == Proxy::ProxyHttp && scheme == "ftp"))
+            if(scheme == "http" || scheme == "https" || (Proxy::getProxy(m_urls[m_nUrl].proxy).nType == Proxy::ProxyHttp && scheme == "ftp"))
 				startHttp(m_urls[m_nUrl].url,m_urls[m_nUrl].strReferrer);
 			else if(scheme == "ftp")
 				startFtp(m_urls[m_nUrl].url);
@@ -277,8 +277,8 @@ void GeneralDownload::startHttp(QUrl url, QUrl referrer)
 	qDebug() << "GeneralDownload::startHttp" << url;
 	
 	m_urlLast = url;
-    //m_engine = new HttpEngine(url, referrer, m_urls[m_nUrl].proxy);
-    m_engine = new HttpEngine(url, referrer, NULL);
+    m_engine = new HttpEngine(url, referrer, m_urls[m_nUrl].proxy);
+    //m_engine = new HttpEngine(url, referrer, NULL);
 	
 	connect(m_engine, SIGNAL(redirected(QString)), this, SLOT(redirected(QString)));
 	connect(m_engine, SIGNAL(renamed(QString)), this, SLOT(renamed(QString)));

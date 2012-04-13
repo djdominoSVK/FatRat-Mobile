@@ -329,6 +329,7 @@ void Transfer::load(const QDomNode& map)
 	m_strComment = getXMLProperty(map, "comment");
 	m_nTimeRunning = getXMLProperty(map, "timerunning").toLongLong();
 	m_uuid = getXMLProperty(map, "uuid");
+    m_strUrl = getXMLProperty(map, "address");
 	
 	if(m_uuid.isNull())
 		m_uuid = QUuid::createUuid();
@@ -340,7 +341,6 @@ void Transfer::load(const QDomNode& map)
 			m_strCommandCompleted = n.firstChild().toText().data();
 		n = n.nextSiblingElement("action");
 	}
-	
 	setUserSpeedLimits(down, up);
 }
 
@@ -352,7 +352,7 @@ void Transfer::save(QDomDocument& doc, QDomNode& node) const
 	setXMLProperty(doc, node, "comment", m_strComment);
 	setXMLProperty(doc, node, "timerunning", QString::number(timeRunning()));
 	setXMLProperty(doc, node, "uuid", m_uuid.toString());
-	
+    setXMLProperty(doc, node, "address", m_strUrl);
 	QDomElement elem = doc.createElement("action");
 	QDomText text = doc.createTextNode(m_strCommandCompleted);
 	elem.setAttribute("state", "Completed");
@@ -537,5 +537,11 @@ Queue* Transfer::myQueue() const
 	return 0;
 }
 
+QString Transfer::url() const
+{return m_strUrl;}
+
+void Transfer::setUrl(QString url){
+    m_strUrl= url;
+}
 
 

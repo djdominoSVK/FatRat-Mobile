@@ -27,21 +27,27 @@ HttpEngine::HttpEngine(QUrl url, QUrl referrer, QUuid proxyUuid) : m_pRemote(0),
 {
 	QString user_info;
 	QString query, host;
-	QList<Proxy> listProxy = Proxy::loadProxys();
-	m_proxyData.nType = Proxy::ProxyNone;
+//	QList<Proxy> listProxy = Proxy::loadProxys();
+
+
+    m_proxyData.nType = Proxy::ProxyNone;
 	
 	host = url.host();
 	if(url.port(80) != 80)
 		host += QString(":") + QString::number(url.port(80));
 	
-	foreach(Proxy p,listProxy)
-	{
-		if(p.uuid == proxyUuid)
-		{
-			m_proxyData = p;
-			break;
-		}
-	}
+//	foreach(Proxy p,listProxy)
+//	{
+    if (Proxy::isProxyEnabled()){
+        Proxy p = Proxy:: loadProxy();
+            if(p.uuid == proxyUuid)
+            {
+                m_proxyData = p;
+    //			break;
+            }
+    }
+
+//	}
 	
 	if(!url.hasQuery())
 		query = url.path();

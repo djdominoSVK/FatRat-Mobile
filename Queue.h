@@ -108,6 +108,21 @@ public:
     Q_INVOKABLE void stopAll();
     Q_INVOKABLE void resumeAll();
 
+    Q_INVOKABLE bool isAnyTransferActive(){
+        lock();
+        bool active= false;
+        int i = 0;
+        while(!active && i<size()){
+
+            active = at(i)->isActive();
+            i++;
+
+        }
+        unlock();
+        return active;
+
+    }
+
     Q_INVOKABLE QString getDownSpeed(){
         int downq = 0;
 
@@ -172,6 +187,7 @@ public:
 
             doneQueue(q);
     }
+
 
 	QQueue<QPair<int,int> > speedData() const { return m_qSpeedData; }
 public slots:

@@ -4,7 +4,14 @@ import com.nokia.meego 1.0
 PageStackWindow {
     id: appWindow
 
-    initialPage: listViewPage
+ //   initialPage: listViewPage
+    initialPage: 0
+
+    Component.onCompleted: {
+                pageStack.push([
+                        {page: Qt.resolvedUrl("MainPage.qml")},
+                        {page: Qt.resolvedUrl("Splash.qml")}]);
+            }
 
     MainPage {
         id : listViewPage
@@ -16,9 +23,6 @@ PageStackWindow {
         visualParent: pageStack
         MenuLayout {
             MenuItem {
-                text: qsTr("Accounts")
-            }
-            MenuItem {
                 text: qsTr("Settings")
                 onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
             }
@@ -29,9 +33,6 @@ PageStackWindow {
 
             MenuItem {
                 text: qsTr("About")
-            }
-            MenuItem {
-                text: qsTr("Exit")
             }
         }
     }

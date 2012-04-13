@@ -169,6 +169,7 @@ void Queue::saveQueues()
 	QFile file;
 	QDir dir = QDir::home();
 	
+    dir.mkpath(".local/share/fatrat");
 	if(!dir.cd(".local/share/fatrat"))
 		return;
 	file.setFileName(dir.filePath("queues.xml.new"));
@@ -510,7 +511,7 @@ void Queue::resumeAll()
 	{
 		Transfer* t = at(j);
 		Transfer::State state = t->state();
-		if(state == Transfer::Paused || state == Transfer::Failed)
+        if(state == Transfer::Paused || state == Transfer::Failed || state == Transfer::Waiting)
 			t->setState(Transfer::Active);
 	}
 }

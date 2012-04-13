@@ -99,6 +99,10 @@ public:
 	Q_INVOKABLE virtual QString dataPath(bool bDirect = true) const;
 	Q_PROPERTY(QString dataPath READ dataPath)
 	
+
+    Q_INVOKABLE QString url() const;
+    Q_INVOKABLE void setUrl(QString url);
+
 	// TRANSFER SPEED AND SPEED LIMITS
 	virtual void speeds(int& down, int& up) const = 0;
 	Q_INVOKABLE void setUserSpeedLimits(int down,int up);
@@ -176,7 +180,6 @@ protected:
 	void fireCompleted();
 	void updateGraph();
 
-	// Calls this->deleteLater()
 	Q_INVOKABLE void replaceItself(Transfer* newObject);
 	Q_INVOKABLE void replaceItself(Transfer::TransferList newObjects);
 	Queue* myQueue() const;
@@ -192,16 +195,13 @@ protected:
 	
 	int m_nRetryCount;
 	
-	QString m_strLog, m_strComment, m_strCommandCompleted;
+    QString m_strLog, m_strComment, m_strCommandCompleted, m_strUrl;
 	
 	QQueue<QPair<int,int> > m_qSpeedData;
 	QUuid m_uuid;
 	
 	friend class QueueMgr;
 	friend class Queue;
-#ifdef WITH_JPLUGINS
-	friend class JPlugin;
-#endif
 };
 
 

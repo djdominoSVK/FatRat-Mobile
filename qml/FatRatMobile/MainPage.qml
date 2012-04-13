@@ -1,11 +1,32 @@
-import QtQuick 1.1
+import QtQuick 1.0
 import com.nokia.meego 1.0
+
 
 Page {
     id : listViewPage
     tools: commonTools
+    orientationLock: PageOrientation.LockPortrait
+
+    function deleteWithData(index)
+    {if ((index>-1)&&(listTransfers.count>index)){
+            queue.removeWithData(index,false)
+
+        }
+        listViewPage.state = "active"
+    }
+
+    function deleteWithoutData(index)
+    {if ((index>-1)&&(listTransfers.count>index)){
+            queue.remove(index,false)
+
+        }
+        listViewPage.state = "active"
+    }
+
 
     Component {
+
+
         id: transferDelegate
 
         Item {
@@ -17,70 +38,81 @@ Page {
             height: 80
 
             MouseArea {
-                anchors.fill: parent
+                anchors.top: parent.top
+                anchors.bottom: parent.top
+                anchors.bottomMargin: -80
+                anchors.right: parent.right
+                anchors.left: parent.left
                 onClicked: {
                     listTransfers.currentIndex = index
                     transfer.state = 'Details'
                     listViewPage.state = "details"
                 }
+                onPressAndHold: {
+                    listTransfers.currentIndex = index
+                    transferDialog.name = name
+                    transferDialog.destination = destination
+                    transferDialog.open()
+                }
 
             }
 
-                Image {
-                    id: iconImage
-                    width: 42
-                    height: 42
-                    anchors.left: parent.left
-                    anchors.leftMargin: 10
-                    anchors.top: parent.top
-                    anchors.topMargin: 15
-                    source: ("images" + model.state)
-                }
+            Image {
+                id: iconImage
+                width: 42
+                height: 42
+                anchors.left: parent.left
+                anchors.leftMargin: 10
+                anchors.top: parent.top
+                anchors.topMargin: 15
+                source: ("images" + model.state)
+            }
 
-                Text {
-                    id: filenameTxt
-                    font.family: "Tahoma"
-                    color: "black"
-                    font.pixelSize: 24
-                    elide: Text.ElideRight
-                    text: name
-                    anchors.left: iconImage.right
-                    anchors.leftMargin: 5
-                    anchors.right: speedTxt.left
-                    anchors.rightMargin: 10
-                    anchors.top: parent.top
-                    anchors.topMargin: 20
-                    visible: true
-                }
+            Text {
+                id: filenameTxt
+                font.family: "Tahoma"
+                color: "black"
+                font.pixelSize: 24
+                elide: Text.ElideRight
+                text: name
+                anchors.left: iconImage.right
+                anchors.leftMargin: 5
+                anchors.right: speedTxt.left
+                anchors.rightMargin: 10
+                anchors.top: parent.top
+                anchors.topMargin: 20
+                visible: true
+            }
 
-                ProgressBar {
-                    id: progressBar
-                    value: fProgress
-                    maximumValue: 100
-                    minimumValue: 0
-                    anchors.left: parent.left
-                    anchors.leftMargin: 10
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    anchors.top: iconImage.bottom
-                    anchors.topMargin: 4
-                }
+            ProgressBar {
+                id: progressBar
+                value: fProgress
+                maximumValue: 100
+                minimumValue: 0
+                anchors.left: parent.left
+                anchors.leftMargin: 10
+                anchors.right: parent.right
+                anchors.rightMargin: 10
+                anchors.top: iconImage.bottom
+                anchors.topMargin: 4
+            }
 
-                Text {
-                    id: speedTxt
-                    font.family: "Tahoma"
-                    color: "black"
-                    font.pixelSize: 24
-                    text: if(speed !== "") { return speed } else { return "n/a" }
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    anchors.top: parent.top
-                    anchors.topMargin: 20
-                }
+            Text {
+                id: speedTxt
+                font.family: "Tahoma"
+                color: "black"
+                font.pixelSize: 24
+                text: if(speed !== "") { return speed } else { return "n/a" }
+                anchors.right: parent.right
+                anchors.rightMargin: 10
+                anchors.top: parent.top
+                anchors.topMargin: 20
+            }
 
             Item {
                 id: details
                 anchors { top: parent.top; topMargin: 10; bottom: parent.bottom; bottomMargin: 10 }
+                width: listTransfers.width
                 opacity: transfer.detailsOpacity
 
 
@@ -91,6 +123,7 @@ Page {
                     anchors.left: parent.left
                     anchors.leftMargin: 10
                     font.pixelSize: 24
+                    font.bold: true
                     text: "Progress: "
                 }
                 Text {
@@ -103,19 +136,75 @@ Page {
                     elide: Text.ElideRight
                     text: progress
                 }
+                Label {
+                    id: sourceLabel
+                    anchors.top: transferProgress.bottom
+                    anchors.topMargin: 10
+                    anchors.left: parent.left
+                    anchors.leftMargin: 10
+
+                    font.pixelSize: 24
+                    font.bold: true
+                    text: "Source: "
+                }
+                Text {
+                    id: transferSource
+                    anchors.top: sourceLabel.bottom
+                    anchors.topMargin: 10
+                    anchors.left: parent.left
+                    anchors.leftMargin: 10
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+                    font.pixelSize: 24
+                    elide: Text.ElideRight
+                    text: source
+                    MouseArea{
+                        anchors.fill: parent
+                        onPressAndHold: {
+                            urlTransferDialog.url= transferSource.text
+                            urlTransferDialog.open()
+                        }
+                    }
+
+                }
 
                 Label {
-                    id: timeLeftLabel
-                    anchors.top: progressLabel.bottom
+                    id: destinationLabel
+                    anchors.top: transferSource.bottom
                     anchors.topMargin: 10
                     anchors.left: parent.left
                     anchors.leftMargin: 10
                     font.pixelSize: 24
+                    font.bold: true
+                    text: "Destination: "
+                }
+                Text {
+                    id: transferDestinatipon
+                    anchors.top: destinationLabel.bottom
+                    anchors.topMargin: 10
+                    anchors.left: parent.left
+                    anchors.leftMargin: 10
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+
+                    font.pixelSize: 24
+                   // elide: Text.ElideRight
+                    text: destination
+                }
+
+                Label {
+                    id: timeLeftLabel
+                    anchors.top: transferDestinatipon.bottom
+                    anchors.topMargin: 10
+                    anchors.left: parent.left
+                    anchors.leftMargin: 10
+                    font.pixelSize: 24
+                    font.bold: true
                     text: "Time left: "
                 }
                 Text {
                     id: transferTimeLeft
-                    anchors.top: progressLabel.bottom
+                    anchors.top: transferDestinatipon.bottom
                     anchors.topMargin: 10
                     anchors.left: timeLeftLabel.right
                     anchors.leftMargin: 10
@@ -129,6 +218,7 @@ Page {
                     anchors.left: parent.left
                     anchors.leftMargin: 10
                     font.pixelSize: 24
+                    font.bold: true
                     text: "Size: "
                 }
                 Text {
@@ -140,23 +230,34 @@ Page {
                     font.pixelSize: 24
                     text: size
                 }
+                Label {
+                    id: messageLabel
+                    anchors.top: sizeLabel.bottom
+                    anchors.topMargin: 10
+                    anchors.left: parent.left
+                    anchors.leftMargin: 10
+                    font.pixelSize: 24
+                    font.bold: true
+                    text: "Message: "
+                }
+                Text {
+                    id: transferMessage
+                    anchors.top: messageLabel.bottom
+                    anchors.topMargin: 10
+                    anchors.left: parent.right
+                    anchors.leftMargin: 10
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+
+                    font.pixelSize: 24
+                    text: message
+                }
+
             }
 
-            // A button to close the detailed view, i.e. set the state back to default ('').
-//            Button {
-//                y: 10
-//                anchors { right: parent.right; rightMargin: 10; bottom: parent.bottom; bottomMargin: 50}
-//                opacity: transfer.detailsOpacity
-//                text: "Close"
-
-//                onClicked: transfer.state = '';
-//            }
 
             states: State {
                 name: "Details"
-
-               // PropertyChanges { target: background; color: "white" }
-            //    PropertyChanges { target: iconImage; width: 130; height: 130 } // Make picture bigger
                 PropertyChanges {target: iconBack; onClicked:{
                         transfer.state = ''
                         iconMenu.visible = true
@@ -165,13 +266,13 @@ Page {
                         iconBack.visible= false
                         listViewPage.state = "active"
                         listTransfers.currentIndex = -1}}
-                PropertyChanges { target: transfer; detailsOpacity: 1; x: 0 } // Make details visible
+                PropertyChanges { target: transfer; detailsOpacity: 1; x: 0 }
                 PropertyChanges { target: transfer; height:  listTransfers.height } // Fill the entire list area with the detailed view
-
-                // Move the list so that this item is at the top.
                 PropertyChanges { target: transfer.ListView.view; explicit: true; contentY: transfer.y }
-
-                // Disallow flicking while we're in detailed view
+                PropertyChanges { target: moveUp; visible: false}
+                PropertyChanges { target: moveDown; visible: false}
+                PropertyChanges { target: moveTop; visible: false}
+                PropertyChanges { target: moveBottom; visible: false}
                 PropertyChanges { target: transfer.ListView.view; interactive: false }
             }
 
@@ -185,6 +286,9 @@ Page {
         }
     }
 
+
+
+
     ListView {
         id: listTransfers
         width:parent.width
@@ -195,6 +299,8 @@ Page {
         anchors.topMargin: 5
         anchors.right: parent.right
         anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 5
         clip: true
         model: itemList
         delegate: transferDelegate
@@ -205,10 +311,15 @@ Page {
         onCurrentItemChanged: console.log("item")
         Timer {
             id: refresh
-            interval: 2000; running: true; repeat: true
-            onTriggered:  {itemList.refresh()
+            interval: 1000;
+            running: true;
+            repeat: true
+            onTriggered:  {
+                itemList.refresh()
                 downloadText.text = "Download: " + queue.getDownSpeed()
                 uploadText.text = "Upload: " + queue.getUpSpeed()
+                refresh.interval = newTransfer.getRefresh() * 1000
+
             }
         }
     }
@@ -277,63 +388,145 @@ Page {
 
     }
     Dialog {
-      id: deleteTransferDialog
-      content:Item {
-        id: name
-        height: 50
-        width: parent.width
-        Text {
-          id: text
-          font.pixelSize: 22
-          anchors.centerIn: parent
-          color: "white"
-          text: "Really remove this transfer?"
+        id: deleteTransferDialog
+        content:Item {
+            id: deleteName
+            height: 50
+            width: parent.width
+            Text {
+                id: deleteText
+                font.pixelSize: 22
+                anchors.centerIn: parent
+                color: "white"
+                text: "Really remove this transfer?"
+            }
         }
-      }
 
-      buttons:  ButtonColumn {
-          spacing: 15
-          style: ButtonStyle { }
-          anchors.horizontalCenter: parent.horizontalCenter
-          Button {text: "Delete with data"; onClicked:
-              {if ((listTransfers.currentIndex>-1)&&(listTransfers.count>listTransfers.currentIndex)){
-                                         queue.removeWithData(listTransfers.currentIndex,false)
+        buttons:  ButtonColumn {
+            id:buttonsDelete
+            spacing: 15
+            style: ButtonStyle { }
+            anchors.horizontalCenter: parent.horizontalCenter
+            Button {text: "Delete with data"; onClicked:
+                {   deleteWithData(listTransfers.currentIndex)
+                    listTransfers.currentItem.state = ''
+                    deleteTransferDialog.accept()
+                }
+            }
+            Button { text: "Delete without data"; onClicked:
+                {
+                    deleteWithoutData(listTransfers.currentIndex);
+                    listTransfers.currentItem.state = ''
+                    deleteTransferDialog.accept()
+                }
+            }
+            Button {text: "Cancel"; onClicked: deleteTransferDialog.close()}
+        }
+    }
+    Dialog {
+        property string url
+        id: urlTransferDialog
+        content:Item {
+            id: urlName
+            height: 300
+            width: parent.width
 
-                                     }
-                                     else{
-                                            deleteTransferDialog.close()
-                                     }
-                  listTransfers.currentItem.state = ''
-                  iconMenu.visible = true
-                  iconAdd.visible = true
-                  iconDelete.visible = false
-                  iconBack.visible= false
-                  listViewPage.state = "active"
-                  listTransfers.currentIndex = -1
-                  deleteTransferDialog.accept()
+            Text {
+                id: urlText
+                font.pixelSize: 22
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.leftMargin: 10
+                color: "white"
+                text: "Source: "
+            }
+            TextArea{
+                anchors.top: urlText.bottom
+                width: parent.width
+                height: 250
+                text: urlTransferDialog.url
+            }
+        }
+
+        buttons:  ButtonColumn {
+            spacing: 5
+            style: ButtonStyle { }
+            anchors.horizontalCenter: parent.horizontalCenter
+            Button {text: "Cancel"; onClicked: urlTransferDialog.close()}
+        }
+    }
+    Dialog {
+        property string name
+        property string destination
+
+        id: transferDialog
+        content:Item {
+            id: name
+            height: 50
+            width: parent.width
+            Text {
+                id: text
+                font.pixelSize: 22
+                anchors.centerIn: parent
+                color: "white"
+                text: "What do you want to do?"
+            }
+        }
+
+        buttons:  ButtonColumn {
+            spacing: 15
+            style: ButtonStyle { }
+            anchors.horizontalCenter: parent.horizontalCenter
+            Button {text: "Open file";
+                onClicked:
+                {   Qt.openUrlExternally(transferDialog.destination + "/" + transferDialog.name);
+                    transferDialog.accept()
+                    listTransfers.currentIndex = -1
+                }
+            }
+            Button {
+                id: moveUp
+                text: "Move up"
+                onClicked:
+                {
+                    queue.moveUp(listTransfers.currentIndex)
+                    transferDialog.accept()
+                    listTransfers.currentIndex = -1
+                }
               }
-          }
-          Button {id: but1 ;text: "Delete without data"; onClicked:
-              {if ((listTransfers.currentIndex>-1)&&(listTransfers.count>listTransfers.currentIndex)){
-                                         queue.remove(listTransfers.currentIndex,false)
-
-                                     }
-                                     else{
-                                            deleteTransferDialog.close()
-                                     }
-                  listTransfers.currentItem.state = ''
-                  iconMenu.visible = true
-                  iconAdd.visible = true
-                  iconDelete.visible = false
-                  iconBack.visible= false
-                  listViewPage.state = "active"
-                  listTransfers.currentIndex = -1
-                  deleteTransferDialog.accept()
-              }
-          }
-          Button {text: "Cancel"; onClicked: deleteTransferDialog.close()}
-      }
-}
+            Button {
+                id: moveDown
+                text: "Move down"
+                onClicked:
+                {
+                    queue.moveDown(listTransfers.currentIndex)
+                    transferDialog.accept()
+                    listTransfers.currentIndex = -1
+                }
+            }
+            Button {
+                id: moveTop
+                text: "Move to top"
+                onClicked:
+                {
+                    queue.moveToTop(listTransfers.currentIndex)
+                    transferDialog.accept()
+                    listTransfers.currentIndex = -1
+                }
+            }
+            Button {
+                id:moveBottom
+                text: "Move to bottom"
+                onClicked:
+                {
+                    queue.moveToBottom(listTransfers.currentIndex)
+                    transferDialog.accept()
+                    listTransfers.currentIndex = -1
+                }
+            }
+            Button {text: "Cancel"; onClicked: transferDialog.close()}
+        }
+    }
 
 
     ToolBarLayout {
@@ -359,27 +552,23 @@ Page {
         ToolIcon {
             iconId: "toolbar-mediacontrol-play"
             onClicked: {if ((listTransfers.currentIndex>-1)&&(listTransfers.count>listTransfers.currentIndex)){
-                            queue.resumeTransfer(listTransfers.currentIndex)
+                    queue.resumeTransfer(listTransfers.currentIndex)
 
-                        }
-                        else{
-                            queue.resumeAll()
-                            listViewPage.state = "active"
                 }
-                        //refreshHeader.running=true
+                else{
+                    qmgr.unpauseAllTransfers()
+                }
             }
         }
         ToolIcon {
             iconId: "toolbar-mediacontrol-pause"
             onClicked: { if ((listTransfers.currentIndex>-1)&&(listTransfers.count>=listTransfers.currentIndex)){
-                            queue.pauseTransfer(listTransfers.currentIndex)
+                    queue.pauseTransfer(listTransfers.currentIndex)
 
-                            }
-                       else{
-                            queue.stopAll()
-                            itemList.refresh()
-
-                        }
+                }
+                else{
+                    qmgr.pauseAllTransfers()
+                }
 
 
             }
@@ -401,12 +590,10 @@ Page {
         State {
             name: "active"
             PropertyChanges {target: refresh; running: true }
-           // PropertyChanges {target: refreshHeader; running: true }
-        },
-        State {
-            name: "paused"
-          //  PropertyChanges {target: refresh; running: false }
-          //  PropertyChanges {target: refreshHeader; running: false }
+            PropertyChanges {target: iconMenu; visible: true}
+            PropertyChanges {target: iconAdd; visible: true}
+            PropertyChanges {target: iconDelete; visible: false}
+            PropertyChanges {target: iconBack; visible: false}
         },
         State {
             name: "details"

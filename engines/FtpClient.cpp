@@ -84,17 +84,21 @@ FtpEngine::FtpEngine(QUrl url, QUuid proxyUuid) : m_pRemote(0), m_pSocketMain(0)
 	
 	m_url = url;
 	
-	QList<Proxy> listProxy = Proxy::loadProxys();
-	m_proxyData.nType = Proxy::ProxyNone;
+//	QList<Proxy> listProxy = Proxy::loadProxys();
+    m_proxyData.nType = Proxy::ProxyNone;
+    if (Proxy::isProxyEnabled()){
+    Proxy p = Proxy::loadProxy();
+    //m_proxyData.nType = Proxy::ProxyNone;
 	
-	foreach(Proxy p,listProxy)
-	{
+    //foreach(Proxy p,listProxy)
+    //{
 		if(p.uuid == proxyUuid)
 		{
 			m_proxyData = p;
-			break;
+            //break;
 		}
-	}
+    }
+    //}
 }
 
 void FtpEngine::request(QString file, bool bUpload, int flags)

@@ -9,7 +9,7 @@ class RowData
 {
 
 public:
-    RowData(): m_name(""), m_speedDown(""), m_speedUp(""), m_timeLeft(""),m_message(""), m_progress(""), m_size(""), m_fProgress(0),m_actSpeed("")
+    RowData(): m_name(""), m_speedDown(""), m_speedUp(""), m_timeLeft(""),m_message(""), m_progress(""), m_size(""), m_fProgress(0),m_actSpeed(""),m_destination(""),m_source("")
     {}
 
     RowData(Transfer* t) : m_state(t->state()),m_name(t->name()),m_message(t->message()), m_mode(t->mode()), m_primaryMode(t->primaryMode())
@@ -26,6 +26,16 @@ public:
 
         m_size = (total) ? formatSize(t->total(),false) : QString("?");
 
+ //
+        if (t->mode() == (Transfer::Upload)){
+            m_destination = t->url();
+            m_source = t->dataPath(true);
+        }
+        else{
+            m_destination = t->dataPath(false);
+            m_source = t->url();
+        }
+
         if(t->isActive())
         {
             int down,up;
@@ -34,9 +44,15 @@ public:
             //QString speed;
 
             if(down)
+{
                 m_actSpeed = QString("%1 kB/s").arg(double(down)/1024.f, 0, 'f', 1);
+ }
             if(up)
+  {
                 m_actSpeed += QString("%1 kB/s").arg(double(up)/1024.f, 0, 'f', 1);
+                m_destination = t->url();
+                m_source = t->dataPath(true);
+  }
 
             if(t->total())
             {
@@ -112,27 +128,19 @@ public:
     Q_INVOKABLE void setSpeed(const QString speed) ;
     Q_INVOKABLE QString speed() const;
 
+     Q_INVOKABLE QString destination() const;
+     Q_INVOKABLE void setDestination(const QString destination);
+     Q_INVOKABLE QString source() const;
+     Q_INVOKABLE void setSource(const QString source);
+
     static RowData createDataSet(Transfer* t);
     QString formatTime(qulonglong inval);
     QString formatSize(qulonglong size, bool persec);
 
 
-//signals:
-//    void stateChanged();
-//    void nameChanged();
-//    void speedDownChanged();
-//    void speedUpChanged();
-//    void timeLeftChanged();
-//    void messageChanged();
-//    void progressChanged();
-//    void sizeChanged();
-//    void modeChanged();
-//    void primaryModeChanged();
-//    void fProgressChanged();
-
 private:
         Transfer::State m_state;
-        QString m_name, m_speedDown, m_speedUp, m_timeLeft, m_message, m_progress, m_size, m_actSpeed;
+        QString m_name, m_speedDown, m_speedUp, m_timeLeft, m_message, m_progress, m_size, m_actSpeed, m_destination,m_source;
         Transfer::Mode m_mode, m_primaryMode;
         float m_fProgress;
 

@@ -3,8 +3,8 @@ import com.nokia.meego 1.0
 
 Dialog {
     id: userAuthDialog
-
     content: Column {
+
         spacing: 8
         anchors.left: parent.left; anchors.right: parent.right
 
@@ -36,6 +36,29 @@ Dialog {
                 right: parent.right; left: parent.left
             }
         }
+        CheckBox{
+            id: passCheckBox
+            checked: false
+            onClicked: {
+                if(checked){
+                    passwordField.echoMode = TextInput.Normal
+                }
+                else{
+                    passwordField.echoMode = TextInput.Password
+                }
+            }
+        }
+        Label {
+            id : checkBoxLabel
+            anchors.left: passCheckBox.right
+            anchors.margins: 10
+            anchors.top: passwordField.bottom
+            anchors.topMargin: 10
+            text:  "Visible password"
+            font.pixelSize: 32
+            color: "white"
+        }
+
     }
     buttons: ButtonRow {
         anchors.bottom: parent.bottom

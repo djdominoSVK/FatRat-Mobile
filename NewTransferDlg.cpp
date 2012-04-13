@@ -50,9 +50,6 @@ void NewTransferDlg::createTransfer(QString m_strURIs,bool downloadTrueUploadFal
                                      int m_nDownLimit,int m_nUpLimit,bool m_bPaused)
 {
      Queue* queue = 0;
-     QStringList test;
-        for(int i=0;i<g_enginesDownload.size();i++)
-            test<<(g_enginesDownload[i].longName);
 
      QList<Transfer*> listTransfers;
      try
@@ -132,6 +129,7 @@ void NewTransferDlg::createTransfer(QString m_strURIs,bool downloadTrueUploadFal
 
              d->init(source, destination);
              d->setUserSpeedLimits(m_nDownLimit,m_nUpLimit);
+             d->setUrl(source);
          }
 
          if(m_bPaused)
@@ -212,6 +210,24 @@ QString NewTransferDlg::addTextFile()
     return "";
 }
 
+QString NewTransferDlg::getLinksFromFile(QString filename ){
+    if(!filename.isNull())
+    {
+        QFile file(removeFileFromString(filename));
+        if(file.open(QIODevice::ReadOnly)){
+
+            QString output = file.readAll();
+            return output;
+        }
+        return "";
+
+    }
+    return "";
+}
+
+QString NewTransferDlg:: removeFileFromString(QString filename ){
+    return filename.split("file://")[1];
+}
 
 QString NewTransferDlg::browse(QString current)
 {
@@ -229,5 +245,96 @@ QString NewTransferDlg::browse2()
     QString output = files.join(" \n ");
     return output;
 }
+
+ QString NewTransferDlg::getIp(){
+    g_settings->beginReadArray("httpftp/proxys");
+    g_settings->setArrayIndex(0);
+    QString ip = g_settings->value("ip").toString();
+    g_settings->endArray();
+    return ip;
+}
+
+ QString NewTransferDlg::getPort(){
+     g_settings->beginReadArray("httpftp/proxys");
+     g_settings->setArrayIndex(0);
+     QString value = g_settings->value("port").toString();
+     g_settings->endArray();
+     return value;
+}
+
+ QString NewTransferDlg::getUser(){
+    g_settings->beginReadArray("httpftp/proxys");
+    g_settings->setArrayIndex(0);
+    QString value = g_settings->value("user").toString();
+    g_settings->endArray();
+    return value;
+}
+
+ QString NewTransferDlg::getPassword(){
+     g_settings->beginReadArray("httpftp/proxys");
+     g_settings->setArrayIndex(0);
+     QString value = g_settings->value("password").toString();
+     g_settings->endArray();
+     return value;
+}
+ int NewTransferDlg::getType(){
+     g_settings->beginReadArray("httpftp/proxys");
+     g_settings->setArrayIndex(0);
+     int value = g_settings->value("type",0).toInt();
+     g_settings->endArray();
+     return value;
+}
+
+ int NewTransferDlg::getRefresh(){
+     int test = g_settings->value("gui_refresh").toInt();
+     return g_settings->value("gui_refresh").toInt();
+}
+ int NewTransferDlg::getNetworkSpeedDown(){
+     return g_settings->value("network/speed_down").toInt();
+}
+ int NewTransferDlg::getNetworkSpeedUp(){
+     return g_settings->value("network/speed_up").toInt();
+}
+ int NewTransferDlg::getNetworkMaximum(){
+     return g_settings->value("network/maximum_transfers").toInt();
+}
+
+void NewTransferDlg::saveSettings(QString refresh,QString down, QString up, QString maximum){
+
+        g_settings->setValue("gui_refresh", refresh);
+        g_settings->setValue("network/speed_down", down );
+        g_settings->setValue("network/speed_up", up );
+
+        g_settings->setValue("network/maximum_transfers", maximum);
+
+
+ }
+void NewTransferDlg::initSettings(){
+    int refresh = g_settings->value("gui_refresh").toInt();
+    int speed_down = g_settings->value("network/speed_down").toInt();
+    int speed_up = g_settings->value("network/speed_up").toInt();
+    int maximum_transfers = g_settings->value("network/maximum_transfers").toInt();
+
+    if (refresh<1){
+        g_settings->setValue("gui_refresh", 1);
+    }
+    if (speed_down<1){
+        g_settings->setValue("network/speed_down", 0);
+    }
+    if (speed_up<1){
+        g_settings->setValue("network/speed_up", 0);
+    }
+    if (maximum_transfers<1){
+        g_settings->setValue("network/maximum_transfers", -1);
+    }
+     Queue* q  = getQueue(0, false);
+     if(q){
+         q->setSpeedLimits(speed_down * 1024,speed_up * 1024);
+         q->setTransferLimits(maximum_transfers,-1);
+         q->setUpAsDown(true);
+         }
+     doneQueue(q);
+ }
+
 
 

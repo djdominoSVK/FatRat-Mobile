@@ -69,6 +69,8 @@ TransfersModel::TransfersModel()
     roles[9] = "primaryMode";
     roles[10] = "fProgress";
     roles[11] = "speed";
+    roles[12] = "destination";
+    roles[13] = "source";
 
     setRoleNames(roles);
 }
@@ -271,6 +273,10 @@ QVariant TransfersModel::data(const QModelIndex & index, int role) const {
         return m_lastData[index.row()].fProgress();
     case 11:
         return m_lastData[index.row()].speed();
+    case 12:
+        return m_lastData[index.row()].destination();
+    case 13:
+        return m_lastData[index.row()].source();
     }
 
     return QVariant();

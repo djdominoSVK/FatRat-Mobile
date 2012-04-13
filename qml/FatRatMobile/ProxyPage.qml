@@ -4,34 +4,53 @@ import com.nokia.meego 1.0
 Page {
 
     id: proxyPage
-//    Text {
-//        id: header
-//        anchors.top: parent.top
-//        anchors.topMargin: 22
-//        anchors.right: parent.right
-//        anchors.left: parent.left
-//        anchors.leftMargin: 10
-//        anchors.rightMargin: 10
-//        height: 40
-//        text: qsTr("Proxy  server")
-//        font.pixelSize: 34
-//    }
+    orientationLock: PageOrientation.LockPortrait
+    state: newTransfer.isProxyEnabled() ? "enabled" : "disabled"
+    CheckBox{
+        id: enabledCheckBox
+        anchors.top: headerLabel.bottom
+        anchors.left: parent.left
+        anchors.leftMargin: 10
+        anchors.topMargin: 40
+        checked: newTransfer.isProxyEnabled()
+        onClicked: {
+            if(checked){
+                parent.state= "enabled"
+            }
+            else{
+                parent.state= "disabled"
+            }
+        }
+    }
+    Label {
+        id : checkBoxLabel
+        anchors.top: headerLabel.bottom
+        anchors.left: enabledCheckBox.right
+        anchors.leftMargin: 10
+        anchors.topMargin: 43
+        text:  "Enable proxy"
+        font.pixelSize: 24
+    }
 
+    Item {
+        id: proxyField
+        anchors.fill: parent
      Text {
          id: nameText
-         anchors.top: headerLabel.bottom
+         anchors.top: parent.top
          anchors.left: parent.left
          anchors.leftMargin: 10
-         anchors.topMargin: 40
+         anchors.topMargin: 200
          font.pixelSize: 24
          text: "Proxy name: "
      }
      TextField {
          id: nameTextEdit
-         anchors.top: headerLabel.bottom
+         anchors.bottom: ipTextEdit.top
          anchors.right: parent.right
          anchors.rightMargin: 35
-         anchors.topMargin: 30
+         anchors.bottomMargin: 20
+         text: newTransfer.getProxyName()
      }
      Text {
          id: ipText
@@ -48,6 +67,7 @@ Page {
          anchors.right: parent.right
          anchors.rightMargin: 35
          anchors.topMargin: 30
+         text: newTransfer.getIp()
      }
      Text {
          id: portText
@@ -64,7 +84,7 @@ Page {
          anchors.right: parent.right
          anchors.rightMargin: 35
          anchors.topMargin: 30
-         text: "80"
+         text: (newTransfer.getPort() === "") ? "80" : newTransfer.getPort()
      }
      Text {
          id: userText
@@ -81,6 +101,7 @@ Page {
          anchors.right: parent.right
          anchors.rightMargin: 35
          anchors.topMargin: 30
+         text: newTransfer.getUser()
      }
      Text {
          id: passwordText
@@ -98,11 +119,39 @@ Page {
          anchors.rightMargin: 35
          anchors.topMargin: 30
          echoMode: TextInput.Password
+         text: newTransfer.getPassword()
      }
+
+     CheckBox{
+         id: passCheckBox
+         anchors.top: passwordTextEdit.bottom
+         anchors.left: parent.left
+         anchors.leftMargin: 10
+         anchors.topMargin: 30
+         checked: false
+         onClicked: {
+             if(checked){
+                 passwordTextEdit.echoMode = TextInput.Normal
+             }
+             else{
+                 passwordTextEdit.echoMode = TextInput.Password
+             }
+         }
+     }
+     Label {
+         id : passCheckBoxLabel
+         anchors.left: passCheckBox.right
+         anchors.margins: 10
+         anchors.top: passwordTextEdit.bottom
+         anchors.topMargin: 35
+         text:  "Visible password"
+         font.pixelSize: 24
+     }
+
 
     Text {
         id: proxyType
-        anchors.top: passwordText.bottom
+        anchors.top: passCheckBox.bottom
         anchors.left: parent.left
         anchors.leftMargin: 10
         anchors.topMargin: 40
@@ -114,22 +163,45 @@ Page {
 
     Button {
         id: proxyTypeSingleSelectionDialogButton
-        anchors.top: passwordText.bottom
+        anchors.top: passCheckBox.bottom
         anchors.topMargin: 30
         anchors.right: parent.right
         anchors.rightMargin: 35
-        text: "HTTP"
+        text: (newTransfer.getType() === 0) ? "HTTP" : "SOCKS 5"
         width: 250
         onClicked: {
             proxyTypeSingleSelectionDialog.open();
         }
+    }
+    //    Button{
+    //        id: test
+    //        anchors.top: proxyTypeSingleSelectionDialogButton.bottom
+    //        anchors.topMargin: 30
+    //        anchors.right: parent.right
+    //        anchors.rightMargin: 35
+    //        text: "Save"
+    //        onClicked: {
+    //                       newTransfer.saveProxy(proxyTypeSingleSelectionDialog.selectedIndex,nameTextEdit.text,
+    //                                             ipTextEdit.text,portTextEdit.text,userTextEdit.text,passwordTextEdit.text,
+    //                                             enabledCheckBox.checked)
+    //                   }
+    //    }
+    //    Button {
+    //        anchors.top: test.bottom
+    //        anchors.topMargin: 30
+    //        anchors.right: parent.right
+    //        anchors.rightMargin: 35
+    //       //iconId: "toolbar-back"
+    //        // on click signal pop the page from the stack to go back
+    //        onClicked: appWindow.pageStack.pop();
+    //    }
     }
 
 
     SelectionDialog {
         id: proxyTypeSingleSelectionDialog
         titleText: "Download as:"
-        selectedIndex: 0
+        selectedIndex: newTransfer.getType()
         model: ListModel {
             ListElement { name: "HTTP"}
             ListElement { name: "SOCKS 5" }
@@ -138,6 +210,7 @@ Page {
             proxyTypeSingleSelectionDialogButton.text =
                     proxyTypeSingleSelectionDialog.model.get(proxyTypeSingleSelectionDialog.selectedIndex).name
         }
+
     }
 
 
@@ -154,8 +227,9 @@ Page {
             anchors.left: parent.left
             anchors.leftMargin: 5;
             text: "Save"
-            onClicked: if ((nameTextEdit!=="")&&(ipTextEdit!=="")&&(portTextEdit!=="")){
-
+            onClicked: { newTransfer.saveProxy(proxyTypeSingleSelectionDialog.selectedIndex,nameTextEdit.text,
+                                                 ipTextEdit.text,portTextEdit.text,userTextEdit.text,passwordTextEdit.text,
+                                                 enabledCheckBox.checked)
                        }
         }
     }
@@ -192,12 +266,35 @@ Page {
             elide: Text.ElideRight
 
             font {
-                family: platformLabelStyle.fontFamily
+                //family: platformLabelStyle.fontFamily
                 pixelSize: 32
             }
             text: "Proxy server"
         }
 
     }
+
+    states: [
+        State {name: "disabled"
+//            PropertyChanges {target: nameTextEdit; visible: false }
+//            PropertyChanges {target: ipTextEdit; visible: false }
+//            PropertyChanges {target: portTextEdit; visible: false }
+            PropertyChanges {target: proxyField; visible: false }
+//            PropertyChanges {target: userTextEdit; visible: false }
+//            PropertyChanges {target: passwordTextEdit; visible: false }
+//            PropertyChanges {target: proxyTypeSingleSelectionDialogButton; visible: false }
+
+        },
+        State {name: "enabled"
+//            PropertyChanges {target: nameTextEdit; visible: true }
+//            PropertyChanges {target: ipTextEdit; visible: false }
+//            PropertyChanges {target: portTextEdit; visible: false }
+//            PropertyChanges {target: userTextEdit; visible: false }
+//            PropertyChanges {target: passwordTextEdit; visible: false }
+//            PropertyChanges {target: proxyTypeSingleSelectionDialogButton; visible: false }
+            PropertyChanges {target: proxyField; visible: true }
+        }
+
+    ]
 
 }

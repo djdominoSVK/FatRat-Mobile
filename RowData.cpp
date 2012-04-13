@@ -128,6 +128,25 @@
         }
     }
 
+    QString RowData::destination() const {
+        return m_destination;
+    }
+
+    void RowData::setDestination(const QString destination) {
+        if (destination != m_destination) {
+            m_destination = destination;
+        }
+    }
+
+    QString RowData::source() const {
+        return m_source;
+    }
+
+    void RowData::setSource(const QString source) {
+        if (source != m_source) {
+            m_source = source;
+        }
+    }
 
 
     QString RowData::formatSize(qulonglong size, bool persec)

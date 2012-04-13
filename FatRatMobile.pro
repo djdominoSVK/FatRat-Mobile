@@ -6,7 +6,7 @@ DEPLOYMENTFOLDERS = folder_01
 # Additional import path used to resolve QML modules in Creator's code model
 QML_IMPORT_PATH =
 
-symbian:TARGET.UID3 = 0xE4B12C33
+symbian:TARGET.UID3 = 0xE1DA1080
 
 # Smart Installer package's UID
 # This UID is from the protected range and therefore the package will
@@ -34,21 +34,22 @@ QT += xml \
 
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp \
-    TransfersModel.cpp \
-    TransferFactory.cpp \
-    Transfer.cpp \
-    RowData.cpp \
-    Queue.cpp \
-    NewTransferDlg.cpp \
-    Logger.cpp \
+    Auth.cpp \
     LimitedSocket.cpp \
-    engines/FtpClient.cpp \
-    engines/FtpUpload.cpp \
-    engines/GeneralDownload.cpp \
-    engines/HttpClient.cpp \
-    Proxy.cpp \
+    Logger.cpp \
     Settings.cpp \
-    Auth.cpp
+    RowData.cpp \
+    QueueMgr.cpp \
+    Queue.cpp \
+    Proxy.cpp \
+    NewTransferDlg.cpp \
+    Transfer.cpp \
+    TransferFactory.cpp \
+    TransfersModel.cpp \
+    engines/HttpClient.cpp \
+    engines/GeneralDownload.cpp \
+    engines/FtpUpload.cpp \
+    engines/FtpClient.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -61,24 +62,27 @@ OTHER_FILES += \
     qtc_packaging/debian_harmattan/copyright \
     qtc_packaging/debian_harmattan/control \
     qtc_packaging/debian_harmattan/compat \
-    qtc_packaging/debian_harmattan/changelog
+    qtc_packaging/debian_harmattan/changelog \
+    qml/FatRatMobile/Splash.qml
 
 HEADERS += \
-    TransfersModel.h \
-    TransferFactory.h \
-    Transfer.h \
+    Auth.h \
+    LimitedSocket.h \
     RuntimeException.h \
     RowData.h \
+    RecursiveRemove.h \
+    QueueMgr.h \
     Queue.h \
+    Proxy.h \
     NewTransferDlg.h \
     main.h \
     Logger.h \
-    LimitedSocket.h \
-    engines/FakeDownload.h \
-    engines/FtpClient.h \
-    engines/FtpUpload.h \
-    engines/GeneralDownload.h \
-    engines/HttpClient.h \
-    Proxy.h \
     Settings.h \
-    Auth.h
+    Transfer.h \
+    TransferFactory.h \
+    TransfersModel.h \
+    engines/HttpClient.h \
+    engines/GeneralDownload.h \
+    engines/FtpUpload.h \
+    engines/FtpClient.h \
+    engines/FakeDownload.h

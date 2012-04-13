@@ -53,17 +53,38 @@ public:
         m_auth.strUser = user;
         m_auth.strPassword = pass;
     }
-
-    Q_INVOKABLE void addProxy(int index, QString name,QString ip,QString port, QString user, QString pass) {
-        m_listProxy = Proxy::loadProxys();
-        m_proxy.uuid = QUuid::createUuid();
-        m_proxy.nType = (Proxy::ProxyType) index;
-        m_proxy.strName = name;
-        m_proxy.strIP = ip;
-        m_proxy.nPort = port.toUInt();
-        m_proxy.strUser = user;
-        m_proxy.strPassword = pass;
+    Q_INVOKABLE QString authUsername(){
+        return m_auth.strUser;
     }
+    Q_INVOKABLE QString authPassword(){
+        return m_auth.strPassword;
+    }
+
+    Q_INVOKABLE void saveProxy(int index, QString name,QString ip,QString port, QString user, QString pass, bool enabled) {
+        Proxy::saveProxy(index, name,ip,port, user, pass,enabled);
+    }
+    Q_INVOKABLE QString getIp();
+    Q_INVOKABLE QString getPort();
+    Q_INVOKABLE QString getUser();
+    Q_INVOKABLE QString getPassword();
+    Q_INVOKABLE int getType();
+
+    Q_INVOKABLE QString getProxyName(){
+        return Proxy::getName();
+    }
+    Q_INVOKABLE bool isProxyEnabled(){
+        return Proxy::isProxyEnabled();
+    }
+
+    Q_INVOKABLE QString getLinksFromFile(QString filename );
+    Q_INVOKABLE QString removeFileFromString(QString filename );
+
+    Q_INVOKABLE void saveSettings(QString refresh,QString down, QString up, QString maximum);
+    Q_INVOKABLE void initSettings();
+    Q_INVOKABLE int getRefresh();
+    Q_INVOKABLE int getNetworkSpeedDown();
+    Q_INVOKABLE int getNetworkSpeedUp();
+    Q_INVOKABLE int getNetworkMaximum();
 
     Proxy m_proxy;
     Auth m_auth;

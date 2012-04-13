@@ -2,7 +2,7 @@
 FatRat download manager
 http://fatrat.dolezel.info
 
-Copyright (C) 2006-2010 Lubos Dolezel <lubos a dolezel.info>
+Copyright (C) 2006-2008 Lubos Dolezel <lubos a dolezel.info>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,35 +25,43 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
+#ifndef _QUEUEMGR_H
+#define _QUEUEMGR_H
+#include <QThread>
+#include <QTimer>
+#include "Queue.h"
+#include <QSettings>
+#include <QMap>
 
-#ifndef TRANSFERFACTORY_H
-#define TRANSFERFACTORY_H
-#include <QObject>
-#include "Transfer.h"
-#include "RuntimeException.h"
-
-class TransferFactory : public QObject
+class QueueMgr : public QObject
 {
 Q_OBJECT
 public:
-	TransferFactory();
-	static TransferFactory* instance();
+	QueueMgr();
+	void exit();
+	
+	static QueueMgr* instance() { return m_instance; }
+	
+	inline int totalDown() const { return m_down; }
+	inline int totalUp() const { return m_up; }
 
-	// Create a Transfer instance in the correct thread
-	Transfer* createInstance(const char* clsName);
-	Transfer* createInstance(QString clsName);
-
-	void setState(Transfer* t, Transfer::State state);
-
-	// Init a Transfer in the correct thread
-	void init(Transfer* t, QString source, QString target);
-private slots:
-	void createInstance(QString clsName, Transfer** t);
-	void init(Transfer* t, QString source, QString target, RuntimeException* e, bool* eThrown);
-	void setStateSlot(Transfer* t, Transfer::State state);
+    Q_INVOKABLE void pauseAllTransfers();
+    Q_INVOKABLE void unpauseAllTransfers();
+	inline bool isAllPaused() { return !m_paused.isEmpty(); }
 private:
-	static TransferFactory* m_instance;
+	void doMove(Queue* q, Transfer* t);
+	static Queue* findQueue(Transfer* t);
+public slots:
+	void doWork();
+	void transferStateChanged(Transfer*,Transfer::State,Transfer::State);
+private:
+	static QueueMgr* m_instance;
+	QTimer* m_timer;
+	int m_nCycle;
+	int m_down, m_up;
+
+	// for the Pause all feature
+	QMap<QUuid, Transfer::State> m_paused;
 };
 
-
-#endif  // TRANSFERFACTORY_H
+#endif
