@@ -46,22 +46,15 @@ public:
     QString name() const;
 	QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 	QModelIndex parent(const QModelIndex &index) const;
-	Qt::ItemFlags flags(const QModelIndex &index) const;
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	int columnCount(const QModelIndex &parent) const;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QVariant data(const QModelIndex &index, int role) const;
-	bool hasChildren ( const QModelIndex & parent = QModelIndex() ) const;
-	
-	void setQueue(int q);
+	bool hasChildren ( const QModelIndex & parent = QModelIndex() ) const;	
+    void setQueue(int q);
     Q_INVOKABLE void refresh();
-	int remapIndex(int index);
-
 protected:
 	int m_queue;
 private:
 	int m_nLastRowCount;
-
     QString m_states[12];
 	QMap<int,int> m_filterMapping;
     QVector<RowData> m_lastData;

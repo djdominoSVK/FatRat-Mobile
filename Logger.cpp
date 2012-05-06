@@ -89,6 +89,6 @@ void Logger::enterLogMessage(QString sender, QString msg)
 
 QString Logger::logContents() const
 {
-	QReadLocker l(&m_lock); // TODO: Is this sufficient?
+    QReadLocker l(&m_lock);
 	return m_strLog;
 }

@@ -49,10 +49,7 @@ struct Proxy
     static void saveProxy(int index, QString name,QString ip,QString port, QString user, QString pass, bool enabled) ;
     static bool isProxyEnabled();
 	operator QNetworkProxy() const;
-//	void setProxyTo(QHttp* http) const;
     static QString getName();
-
-//	static QList<Proxy> loadProxys();
     static Proxy loadProxy();
 	static Proxy getProxy(QUuid uuid);
 };

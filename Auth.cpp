@@ -38,7 +38,7 @@ QList<Auth> Auth::loadAuths()
 	for(int i=0;i<count;i++)
 	{
 		Auth auth;
-		g_settings->setArrayIndex(i);
+        g_settings->setArrayIndex(i);
 		
 		auth.strRegExp = g_settings->value("regexp").toString();
 		auth.strUser = g_settings->value("user").toString();

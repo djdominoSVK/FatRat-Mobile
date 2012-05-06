@@ -24,7 +24,7 @@ Page {
          anchors.topMargin: 88
          font.pixelSize: 24
          width: 80
-         text: newTransfer.getRefresh()
+         text: settingsMethods.getRefresh()
      }
      Label {
          id: secondsText
@@ -51,7 +51,7 @@ Page {
          anchors.topMargin: 40
          anchors.left: maximumTransfersLabel.right
          anchors.leftMargin: 10
-         text: (newTransfer.getNetworkMaximum() === -1) ? "unlimited " : maximumTransfersLabelTextEdit.text
+         text: (settingsMethods.getNetworkMaximum() === -1) ? "unlimited " : maximumTransfersLabelTextEdit.text
      }
      CheckBox{
          id: limitedTransfersCheckBox
@@ -59,7 +59,7 @@ Page {
          anchors.left: parent.left
          anchors.leftMargin: 10
          anchors.topMargin: 14
-         checked : !(newTransfer.getNetworkMaximum() === -1)
+         checked : !(settingsMethods.getNetworkMaximum() === -1)
          onClicked: {
              if(checked){
                  maximumTransfersLabelTextEdit.visible= true
@@ -87,8 +87,8 @@ Page {
          anchors.leftMargin: 40
          anchors.topMargin: 7
          width: 100
-         visible: !(newTransfer.getNetworkMaximum() === -1)
-         text: newTransfer.getNetworkMaximum()
+         visible: !(settingsMethods.getNetworkMaximum() === -1)
+         text: settingsMethods.getNetworkMaximum()
          onTextChanged: if (limitedTransfersCheckBox.checked) maximumTransfersValueLabel.text= maximumTransfersLabelTextEdit.text
      }
 
@@ -120,7 +120,7 @@ Page {
          width: 140
          height: 40
          font.pixelSize: 24
-         text: newTransfer.getNetworkSpeedDown()
+         text: settingsMethods.getNetworkSpeedDown()
      }
      Label {
          id: upSpeed
@@ -141,7 +141,7 @@ Page {
          width: 140
          height: 40
          font.pixelSize: 24
-         text: newTransfer.getNetworkSpeedUp()
+         text: settingsMethods.getNetworkSpeedUp()
      }
 
 
@@ -167,8 +167,9 @@ Page {
                     numTransfers = maximumTransfersLabelTextEdit.text
                 }
 
-                newTransfer.saveSettings(refreshTextEdit.text,downSpeedInput.text, upSpeedInput.text, numTransfers);
-                newTransfer.initSettings()
+                settingsMethods.saveSettings(refreshTextEdit.text,downSpeedInput.text, upSpeedInput.text, numTransfers);
+                settingsMethods.initSettings()
+                appWindow.pageStack.pop()
                        }
         }
     }

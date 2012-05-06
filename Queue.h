@@ -51,7 +51,7 @@ public:
 	static void stopQueues();
 	static void loadQueues();
 	static void saveQueues();
-	static void saveQueuesAsync();
+    static void saveQueuesAsync();
 	static void unloadQueues();
 	
 	Q_INVOKABLE void setSpeedLimits(int down,int up) { m_nDownLimit=down; m_nUpLimit=up; }
@@ -108,85 +108,12 @@ public:
     Q_INVOKABLE void stopAll();
     Q_INVOKABLE void resumeAll();
 
-    Q_INVOKABLE bool isAnyTransferActive(){
-        lock();
-        bool active= false;
-        int i = 0;
-        while(!active && i<size()){
 
-            active = at(i)->isActive();
-            i++;
+    Q_INVOKABLE QString getDownSpeed();
+    Q_INVOKABLE QString getUpSpeed();
 
-        }
-        unlock();
-        return active;
-
-    }
-
-    Q_INVOKABLE QString getDownSpeed(){
-        int downq = 0;
-
-        lock();
-
-        for(int i=0;i<size();i++)
-        {
-            int down,up;
-            at(i)->speeds(down,up);
-
-            downq += down;
-
-        }
-        unlock();
-        return QString("%1 kB/s").arg(double(downq)/1024.f, 0, 'f', 1);
-    }
-    Q_INVOKABLE QString getUpSpeed(){
-        int upq = 0;
-
-        lock();
-
-        for(int i=0;i<size();i++)
-        {
-            int down,up;
-            at(i)->speeds(down,up);
-
-            upq += up;
-
-        }
-        unlock();
-        return QString("%1 kB/s").arg(double(upq)/1024.f, 0, 'f', 1);
-    }
-    Q_INVOKABLE void resumeTransfer(int index)
-    {
-            Queue* q  = getQueue(0, false);
-            //QList<int> sel = getSelection();
-
-            if(!q) return;
-
-           // foreach(int i,sel)
-            //{
-                    Transfer* d = q->at(index);
-                    //if(d->state() != Transfer::Active)
-                            d->setState(Transfer::Active);
-           // }
-
-            doneQueue(q);
-    }
-    Q_INVOKABLE void pauseTransfer(int index)
-    {
-            Queue* q  = getQueue(0, false);
-            //QList<int> sel = getSelection();
-
-            if(!q) return;
-
-           // foreach(int i,sel)
-            //{
-                    Transfer* d = q->at(index);
-                    //if(d->state() != Transfer::Active)
-                            d->setState(Transfer::Paused);
-           // }
-
-            doneQueue(q);
-    }
+    Q_INVOKABLE void resumeTransfer(int index);
+    Q_INVOKABLE void pauseTransfer(int index);
 
 
 	QQueue<QPair<int,int> > speedData() const { return m_qSpeedData; }
@@ -205,7 +132,6 @@ private:
 	QUuid m_uuid;
 	mutable QReadWriteLock m_lock;
 public:
-	// statistics
 	struct Stats
 	{
 		int active_d, waiting_d, active_u, waiting_u;
@@ -218,44 +144,13 @@ protected:
 	
 	friend class QueueMgr;
 
-	class BackgroundSaver : public QThread
-	{
-	public:
-		virtual void run();
-	};
-
-	static bool m_bLoaded;
-
-
-protected:
-    static Queue* getQueue(int index, bool lock = true)
+    class BackgroundSaver : public QThread
     {
-        g_queuesLock.lockForRead();
+    public:
+        virtual void run();
+    };
 
-        if(index < 0 || index >= g_queues.size())
-        {
-            if(index != -1)
-                qDebug() << "MainWindow::getQueue(): Invalid queue requested: " << index;
-            g_queuesLock.unlock();
-            return 0;
-        }
-
-        Queue* q = g_queues[index];
-        if(lock)
-            q->lock();
-        return q;
-    }
-
-    void doneQueue(Queue* q, bool unlock = true)
-        {
-            if(q != 0)
-            {
-                if(unlock)
-                    q->unlock();
-                g_queuesLock.unlock();
-            }
-        }
-
+    static bool m_bLoaded;
 
 };
 

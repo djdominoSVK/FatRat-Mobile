@@ -106,7 +106,7 @@ Page {
             anchors.topMargin: 5
             width: 320
             height: 40
-            text: "/home/user/MyDocs/Downloads"
+            text: "/home/djdominoSVK/Downloads"
             font.pixelSize: 24
         }
 
@@ -326,7 +326,6 @@ Page {
                                                       (parseInt(minSpeedInput.text)*1024),
                                                       (parseInt(maxSpeedInput.text)*1024),
                                                       pauseCheckBox.checked)
-                           itemList.refresh()
                            appWindow.pageStack.pop()
                        }
         }

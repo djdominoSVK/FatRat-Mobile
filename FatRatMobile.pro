@@ -42,14 +42,16 @@ SOURCES += main.cpp \
     QueueMgr.cpp \
     Queue.cpp \
     Proxy.cpp \
-    NewTransferDlg.cpp \
     Transfer.cpp \
-    TransferFactory.cpp \
     TransfersModel.cpp \
     engines/HttpClient.cpp \
     engines/GeneralDownload.cpp \
     engines/FtpUpload.cpp \
-    engines/FtpClient.cpp
+    engines/FtpClient.cpp \
+    plugins/Plugins.cpp \
+    SettingsMethods.cpp \
+    TransferMethods.cpp \
+    TransfersMethods.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -70,19 +72,18 @@ HEADERS += \
     LimitedSocket.h \
     RuntimeException.h \
     RowData.h \
-    RecursiveRemove.h \
     QueueMgr.h \
     Queue.h \
     Proxy.h \
-    NewTransferDlg.h \
-    main.h \
     Logger.h \
     Settings.h \
     Transfer.h \
-    TransferFactory.h \
     TransfersModel.h \
     engines/HttpClient.h \
     engines/GeneralDownload.h \
     engines/FtpUpload.h \
     engines/FtpClient.h \
-    engines/FakeDownload.h
+    plugins/Plugins.h \
+    SettingsMethods.h \
+    TransfersMethods.h \
+    NewTransferDlg.h

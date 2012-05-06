@@ -32,6 +32,13 @@ USA.
 #include <QMessageBox>
 #include <QMenu>
 
+
+#include <QtNetwork/QNetworkReply>
+#include <qeventloop.h>
+#include <QStringList>
+
+#include <plugins/Plugins.h>
+
 using namespace std;
 
 extern QSettings* g_settings;
@@ -59,7 +66,7 @@ int GeneralDownload::acceptable(QString uri, bool)
 		&& scheme != "https")
 		return 0;
 	else
-		return 2;
+        return 2;
 }
 
 QString GeneralDownload::name() const
@@ -83,23 +90,6 @@ void GeneralDownload::init(QString uri,QString dest)
 		uri.resize(hash);
 	
 	obj.url = uri;
-	
-//	if(obj.url.userInfo().isEmpty())
-//	{
-//		QList<Auth> auths = Auth::loadAuths();
-//		foreach(Auth a,auths)
-//		{
-//			if(QRegExp(a.strRegExp).exactMatch(uri))
-//			{
-//				obj.url.setUserName(a.strUser);
-//				obj.url.setPassword(a.strPassword);
-				
-//				enterLogMessage(tr("Loaded stored authentication data, matched regexp %1").arg(a.strRegExp));
-				
-//				break;
-//			}
-//		}
-//	}
 	
     obj.proxy = g_settings->value("httpftp/defaultproxy").toString();
 	obj.ftpMode = FtpPassive;
@@ -235,7 +225,7 @@ void GeneralDownload::changeActive(bool nowActive)
 			QString scheme = m_urls[m_nUrl].url.scheme();
 			
             if(scheme == "http" || scheme == "https" || (Proxy::getProxy(m_urls[m_nUrl].proxy).nType == Proxy::ProxyHttp && scheme == "ftp"))
-				startHttp(m_urls[m_nUrl].url,m_urls[m_nUrl].strReferrer);
+                startHttp(m_urls[m_nUrl].url,m_urls[m_nUrl].strReferrer,false);
 			else if(scheme == "ftp")
 				startFtp(m_urls[m_nUrl].url);
 #ifdef WITH_SFTP
@@ -272,13 +262,25 @@ void GeneralDownload::connectSignals()
 	connect(m_engine, SIGNAL(logMessage(QString)), this, SLOT(enterLogMessage(QString)));
 }
 
-void GeneralDownload::startHttp(QUrl url, QUrl referrer)
+void GeneralDownload::startHttp(QUrl url, QUrl referrer,bool redirected)
 {
 	qDebug() << "GeneralDownload::startHttp" << url;
 	
-	m_urlLast = url;
+    if (!redirected){
+        Plugins plugins;
+        qDebug() << url.host();
+        QString realUrl = plugins.checkUrl(url);
+        if (realUrl != NULL){
+            if (realUrl != "unknown_server"){
+                url.setUrl(realUrl);
+            }
+            if (realUrl == "failed"){
+                url.setUrl("");
+            }
+        }
+    }
+    m_urlLast = url;
     m_engine = new HttpEngine(url, referrer, m_urls[m_nUrl].proxy);
-    //m_engine = new HttpEngine(url, referrer, NULL);
 	
 	connect(m_engine, SIGNAL(redirected(QString)), this, SLOT(redirected(QString)));
 	connect(m_engine, SIGNAL(renamed(QString)), this, SLOT(renamed(QString)));
@@ -287,6 +289,8 @@ void GeneralDownload::startHttp(QUrl url, QUrl referrer)
 	m_engine->bind(QHostAddress(m_urls[m_nUrl].strBindAddress));
 	m_engine->request(filePath(), false, 0);
 }
+
+
 
 void GeneralDownload::startFtp(QUrl url)
 {
@@ -300,23 +304,6 @@ void GeneralDownload::startFtp(QUrl url)
 	m_engine->request(filePath(), false, (m_urls[m_nUrl].ftpMode == FtpActive ? FtpEngine::FtpActive : FtpEngine::FtpPassive));
 }
 
-void GeneralDownload::startSftp(QUrl url)
-{
-#ifdef WITH_SFTP
-	qDebug() << "GeneralDownload::startSftp" << url;
-	
-	m_urlLast = url;
-	m_engine = new SftpEngine(url);
-	
-	connectSignals();
-	
-	//m_engine->bind(QHostAddress(m_urls[m_nUrl].strBindAddress));
-	m_engine->request(filePath(), false, 0);
-#else
-	qDebug() << "GeneralDownload::startSftp() should have never been called!";
-	abort();
-#endif
-}
 
 void GeneralDownload::responseSizeReceived(qint64 totalsize)
 {
@@ -375,14 +362,12 @@ void GeneralDownload::redirected(QString newurl)
 			}
 			
 			if(scheme == "http" || scheme == "https")
-				startHttp(location, m_urlLast);
+                startHttp(location, m_urlLast,true);
 			else
 				startFtp(location);
 			
 			m_strMessage = tr("Redirected");
 		
-			//if(code == 301)
-			//	m_urls[m_nUrl].url = location;
 			int down, up;
 			internalSpeedLimits(down, up);
 			m_engine->setLimit(down);
@@ -429,28 +414,6 @@ void GeneralDownload::setTargetName(QString newFileName)
 	}
 }
 
-//WidgetHostChild* GeneralDownload::createOptionsWidget(QWidget* w)
-//{
-//	return new HttpOptsWidget(w,this);
-//}
-
-//WidgetHostChild* GeneralDownload::createSettingsWidget(QWidget* w,QIcon& i)
-//{
-//	i = QIcon(":/fatrat/httpftp.png");
-//	return new HttpFtpSettings(w);
-//}
-
-//void GeneralDownload::fillContextMenu(QMenu& menu)
-//{
-//	QAction* a;
-	
-//	a = menu.addAction(tr("Switch mirror"));
-//	connect(a, SIGNAL(triggered()), this, SLOT(switchMirror()));
-	
-//	a = menu.addAction(tr("Compute hash..."));
-//	connect(a, SIGNAL(triggered()), this, SLOT(computeHash()));
-//}
-
 void GeneralDownload::switchMirror()
 {
 	int prev,cur;
@@ -474,236 +437,3 @@ void GeneralDownload::switchMirror()
 		}
 	}
 }
-
-void GeneralDownload::computeHash()
-{
-	if(state() != Completed)
-	{
-//		if(QMessageBox::warning(getMainWindow(), "FatRat", tr("You're about to compute hash from an incomplete download."),
-//		   QMessageBox::Ok | QMessageBox::Cancel) != QMessageBox::Ok)
-//			return;
-	}
-	
-//	HashDlg dlg(getMainWindow(), filePath());
-//	dlg.exec();
-}
-
-//QDialog* GeneralDownload::createMultipleOptionsWidget(QWidget* parent, QList<Transfer*>& transfers)
-//{
-//	HttpUrlOptsDlg* obj = new HttpUrlOptsDlg(parent, &transfers);
-//	obj->init();
-//	return obj;
-//}
-
-/////////////////////////////////////////////////////////////////////////////////
-
-//HttpOptsWidget::HttpOptsWidget(QWidget* me,GeneralDownload* myobj) : QObject(me), m_download(myobj)
-//{
-//	setupUi(me);
-	
-//	connect(pushUrlAdd, SIGNAL(clicked()), this, SLOT(addUrl()));
-//	connect(pushUrlEdit, SIGNAL(clicked()), this, SLOT(editUrl()));
-//	connect(pushUrlDelete, SIGNAL(clicked()), this, SLOT(deleteUrl()));
-//}
-
-//void HttpOptsWidget::load()
-//{
-//	lineFileName->setText(m_download->m_strFile);
-	
-//	m_urls = m_download->m_urls;
-//	foreach(GeneralDownload::UrlObject obj,m_urls)
-//	{
-//		QUrl copy = obj.url;
-//		copy.setUserInfo(QString());
-		
-//		listUrls->addItem(copy.toString());
-//	}
-//}
-
-//bool HttpOptsWidget::accept()
-//{
-//	return !lineFileName->text().contains('/');
-//}
-
-//void HttpOptsWidget::accepted()
-//{
-//	QString newFileName = lineFileName->text();
-	
-//	if(newFileName != m_download->m_strFile)
-//	{
-//		m_download->setTargetName(newFileName);
-//		m_download->m_bAutoName = false;
-//	}
-	
-//	m_download->m_urls = m_urls;
-//}
-
-//void HttpOptsWidget::addUrl()
-//{
-//	HttpUrlOptsDlg dlg((QWidget*) parent());
-	
-//	if(dlg.exec() == QDialog::Accepted)
-//	{
-//		GeneralDownload::UrlObject obj;
-		
-//		obj.url = dlg.m_strURL;
-//		obj.url.setUserName(dlg.m_strUser);
-//		obj.url.setPassword(dlg.m_strPassword);
-//		obj.strReferrer = dlg.m_strReferrer;
-//		obj.ftpMode = dlg.m_ftpMode;
-//		obj.proxy = dlg.m_proxy;
-//		obj.strBindAddress = dlg.m_strBindAddress;
-		
-//		listUrls->addItem(dlg.m_strURL);
-//		m_urls << obj;
-//	}
-//}
-
-//void HttpOptsWidget::editUrl()
-//{
-//	int row = listUrls->currentRow();
-//	HttpUrlOptsDlg dlg((QWidget*) parent());
-	
-//	if(row < 0)
-//		return;
-	
-//	GeneralDownload::UrlObject& obj = m_urls[row];
-	
-//	QUrl temp = obj.url;
-//	temp.setUserInfo(QString());
-//	dlg.m_strURL = temp.toString();
-//	dlg.m_strUser = obj.url.userName();
-//	dlg.m_strPassword = obj.url.password();
-//	dlg.m_strReferrer = obj.strReferrer;
-//	dlg.m_ftpMode = obj.ftpMode;
-//	dlg.m_proxy = obj.proxy;
-//	dlg.m_strBindAddress = obj.strBindAddress;
-	
-//	dlg.init();
-	
-//	if(dlg.exec() == QDialog::Accepted)
-//	{
-//		obj.url = dlg.m_strURL;
-//		obj.url.setUserName(dlg.m_strUser);
-//		obj.url.setPassword(dlg.m_strPassword);
-//		obj.strReferrer = dlg.m_strReferrer;
-//		obj.ftpMode = dlg.m_ftpMode;
-//		obj.proxy = dlg.m_proxy;
-//		obj.strBindAddress = dlg.m_strBindAddress;
-		
-//		listUrls->item(row)->setText(dlg.m_strURL);
-//	}
-//}
-
-//void HttpOptsWidget::deleteUrl()
-//{
-//	int row = listUrls->currentRow();
-	
-//	if(row >= 0)
-//	{
-//		delete listUrls->takeItem(row);
-//		m_urls.removeAt(row);
-//	}
-//}
-
-//////////////////////////////////////////////////////////////////////////////////
-
-//HttpUrlOptsDlg::HttpUrlOptsDlg(QWidget* parent, QList<Transfer*>* multi)
-//	: QDialog(parent), m_multi(multi)
-//{
-//	setupUi(this);
-	
-//	if(m_multi != 0)
-//	{
-//		lineUrl->setVisible(false);
-//		labelUrl->setVisible(false);
-//	}
-//}
-
-//void HttpUrlOptsDlg::init()
-//{
-//	QList<Proxy> listProxy = Proxy::loadProxys();
-	
-//	comboFtpMode->addItems(QStringList(tr("Active mode")) << tr("Passive mode"));
-//	comboFtpMode->setCurrentIndex(int(m_ftpMode));
-	
-//	lineUrl->setText(m_strURL);
-//	lineReferrer->setText(m_strReferrer);
-//	lineUsername->setText(m_strUser);
-//	linePassword->setText(m_strPassword);
-//	lineAddrBind->setText(m_strBindAddress);
-	
-//	comboProxy->addItem(tr("(none)", "No proxy"));
-//	comboProxy->setCurrentIndex(0);
-	
-//	if(m_proxy.isNull() && m_multi != 0)
-//	{
-//		m_proxy = g_settings->value("httpftp/defaultproxy").toString();
-//	}
-	
-//	for(int i=0;i<listProxy.size();i++)
-//	{
-//		comboProxy->addItem(listProxy[i].strName);
-//		if(listProxy[i].uuid == m_proxy)
-//			comboProxy->setCurrentIndex(i+1);
-//	}
-//}
-
-//int HttpUrlOptsDlg::exec()
-//{
-//	int result;
-	
-//	result = QDialog::exec();
-	
-//	if(result == QDialog::Accepted)
-//	{
-//		QList<Proxy> listProxy = Proxy::loadProxys();
-		
-//		m_strURL = lineUrl->text();
-//		m_strReferrer = lineReferrer->text();
-//		m_strUser = lineUsername->text();
-//		m_strPassword = linePassword->text();
-//		m_strBindAddress = lineAddrBind->text();
-//		m_ftpMode = FtpMode( comboFtpMode->currentIndex() );
-		
-//		int ix = comboProxy->currentIndex();
-//		m_proxy = (!ix) ? QUuid() : listProxy[ix-1].uuid;
-		
-//		if(m_multi != 0)
-//			runMultiUpdate();
-//	}
-	
-//	return result;
-//}
-
-//void HttpUrlOptsDlg::accept()
-//{
-//	QString url = lineUrl->text();
-	
-//	if(m_multi != 0 || url.startsWith("http://") || url.startsWith("ftp://")
-//#ifdef WITH_SFTP
-//		  || url.startsWith("sftp://")
-//#endif
-//		  || url.startsWith("https://"))
-//		QDialog::accept();
-//}
-
-//void HttpUrlOptsDlg::runMultiUpdate()
-//{
-//	// let the heuristics begin
-//	foreach(Transfer* t, *m_multi)
-//	{
-//		GeneralDownload::UrlObject& obj = dynamic_cast<GeneralDownload*>(t)->m_urls[0];
-//		if(obj.url.userInfo().isEmpty()) // we will not override the "automatic login data"
-//		{
-//			obj.url.setUserName(m_strUser);
-//			obj.url.setPassword(m_strPassword);
-//		}
-		
-//		obj.strReferrer = m_strReferrer;
-//		obj.ftpMode = m_ftpMode;
-//		obj.proxy = m_proxy;
-//		obj.strBindAddress = m_strBindAddress;
-//	}
-//}
-

@@ -4,9 +4,7 @@ import com.nokia.meego 1.0
 PageStackWindow {
     id: appWindow
 
- //   initialPage: listViewPage
     initialPage: 0
-
     Component.onCompleted: {
                 pageStack.push([
                         {page: Qt.resolvedUrl("MainPage.qml")},
@@ -31,9 +29,6 @@ PageStackWindow {
                 onClicked: pageStack.push(Qt.resolvedUrl("ProxyPage.qml"))
             }
 
-            MenuItem {
-                text: qsTr("About")
-            }
         }
     }
 }

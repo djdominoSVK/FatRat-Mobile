@@ -59,15 +59,12 @@ public:
 	
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
-    //virtual WidgetHostChild* createOptionsWidget(QWidget*);
-	
-	virtual void fillContextMenu(QMenu& menu);
+
 private:
 	void safeDestroy();
 private slots:
 	void finished(bool error);
 	void status(QString);
-    //void computeHash();
 protected:
 	QString m_strName, m_strSource;
 	QUrl m_strTarget;
@@ -81,17 +78,5 @@ protected:
 	
 	friend class FtpUploadOptsForm;
 };
-
-//class FtpUploadOptsForm : public QObject, public WidgetHostChild, Ui_FtpUploadOptsForm
-//{
-//Q_OBJECT
-//public:
-//	FtpUploadOptsForm(QWidget* me,FtpUpload* myobj);
-//	virtual void load();
-//	virtual void accepted();
-//	virtual bool accept();
-//private:
-//	FtpUpload* m_upload;
-//};
 
 #endif

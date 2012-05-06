@@ -77,8 +77,7 @@ void QueueMgr::doWork()
 			int downs,ups;
 			Transfer::State state = d->state();
 			Transfer::Mode mode = d->mode();
-			
-//			d->updateGraph();
+
 			d->speeds(downs,ups);
 			
 			if(downs >= 1024 && mode == Transfer::Download)
@@ -313,8 +312,10 @@ void QueueMgr::unpauseAllTransfers()
 		{
 			Transfer* t = q->at(i);
 			QUuid uuid = t->uuid();
-            //if (m_paused.contains(uuid) && t->state() == Transfer::Paused)
+            Transfer::State s = t->state();
+            if (( s != Transfer::Completed) && ( s != Transfer::Active)){
 				t->setState(m_paused[uuid]);
+            }
 		}
 
 		q->unlock();

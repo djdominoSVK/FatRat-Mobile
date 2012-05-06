@@ -67,33 +67,12 @@ void FtpUpload::init(QString source, QString target)
 	if(m_strName.isEmpty())
 		m_strName = finfo.fileName();
 	
-	if(
-	   !target.startsWith("ftp://")
-#ifdef WITH_SFTP
-	   && !target.startsWith("sftp://")
-#endif
-	)
+    if(!target.startsWith("ftp://"))
 		throw RuntimeException(tr("Invalid protocol for this upload class (FTP)"));
 	
 	m_strTarget = target;
 	m_strSource = source;
 	
-	if(m_strTarget.userInfo().isEmpty())
-	{
-//		QList<Auth> auths = Auth::loadAuths();
-//		foreach(Auth a,auths)
-//		{
-//			if(QRegExp(a.strRegExp).exactMatch(target))
-//			{
-//				m_strTarget.setUserName(a.strUser);
-//				m_strTarget.setPassword(a.strPassword);
-				
-//				enterLogMessage(tr("Loaded stored authentication data, matched regexp %1").arg(a.strRegExp));
-				
-//				break;
-//			}
-//		}
-	}
 }
 
 void FtpUpload::setObject(QString object)
@@ -222,93 +201,5 @@ void FtpUpload::save(QDomDocument& doc, QDomNode& map) const
 	setXMLProperty(doc, map, "proxy", m_proxy.toString());
 }
 
-//WidgetHostChild* FtpUpload::createOptionsWidget(QWidget* w)
-//{
-//	return new FtpUploadOptsForm(w, this);
-//}
-
-void FtpUpload::fillContextMenu(QMenu& menu)
-{
-	QAction* a;
-	
-	a = menu.addAction(tr("Compute hash..."));
-	connect(a, SIGNAL(triggered()), this, SLOT(computeHash()));
-}
-
-//void FtpUpload::computeHash()
-//{
-//	HashDlg dlg(getMainWindow(), m_strSource);
-//	dlg.exec();
-//}
-
-////////////////////////////////////////////////////////////
-
-//FtpUploadOptsForm::FtpUploadOptsForm(QWidget* me,FtpUpload* myobj)
-//	: m_upload(myobj)
-//{
-//	setupUi(me);
-	
-//	if(myobj->m_strTarget.scheme() != "ftp")
-//	{
-//		//comboFtpMode->setDisabled(true);
-//		comboProxy->setDisabled(true);
-//	}
-//}
-
-//void FtpUploadOptsForm::load()
-//{
-//	QList<Proxy> listProxy = Proxy::loadProxys();
-//	QUrl temp, url;
-	
-//	temp = url = m_upload->m_strTarget;
-//	temp.setUserInfo(QString());
-//	lineTarget->setText(temp.toString());
-//	lineUsername->setText(url.userName());
-//	linePassword->setText(url.password());
-	
-//	comboFtpMode->addItems(QStringList(tr("Active mode")) << tr("Passive mode"));
-//	comboFtpMode->setCurrentIndex(int(m_upload->m_mode));
-	
-//	comboProxy->addItem(tr("(none)", "No proxy"));
-//	comboProxy->setCurrentIndex(0);
-	
-//	for(int i=0;i<listProxy.size();i++)
-//	{
-//		comboProxy->addItem(listProxy[i].strName);
-//		if(listProxy[i].uuid == m_upload->m_proxy)
-//			comboProxy->setCurrentIndex(i+1);
-//	}
-	
-//	lineAddrBind->setText(m_upload->m_strBindAddress);
-//}
-
-//void FtpUploadOptsForm::accepted()
-//{
-//	QList<Proxy> listProxy = Proxy::loadProxys();
-//	QUrl url = lineTarget->text();
-	
-//	url.setUserName(lineUsername->text());
-//	url.setPassword(linePassword->text());
-	
-//	m_upload->m_strTarget = url.toString();
-//	int ix = comboProxy->currentIndex();
-//	m_upload->m_proxy = (!ix) ? QUuid() : listProxy[ix-1].uuid;
-	
-//	m_upload->m_mode = FtpMode( comboFtpMode->currentIndex() );
-//	m_upload->m_strBindAddress = lineAddrBind->text();
-//}
-
-//bool FtpUploadOptsForm::accept()
-//{
-//	bool acc = false;
-	
-//	acc |= lineTarget->text().startsWith("ftp://");
-	
-//#ifdef WITH_SFTP
-//	acc |= lineTarget->text().startsWith("sftp://");
-//#endif
-	
-//	return acc;
-//}
 
 

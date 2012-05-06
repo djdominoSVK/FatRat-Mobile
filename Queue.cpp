@@ -78,7 +78,7 @@ void Queue::stopQueues()
 				t->changeActive(false);
 		}
 		q->unlock();
-	}
+    }
 }
 
 void Queue::loadQueues()
@@ -144,16 +144,15 @@ void Queue::loadQueues()
 
 void Queue::BackgroundSaver::run()
 {
-	Queue::saveQueues();
-//	if (getSettingsValue("queue_synconwrite").toBool())
-		sync();
+    Queue::saveQueues();
+    sync();
 }
 
 void Queue::saveQueuesAsync()
 {
-	BackgroundSaver* t = new BackgroundSaver;
-	connect(t, SIGNAL(finished()), t, SLOT(deleteLater()));
-	t->start();
+    BackgroundSaver* t = new BackgroundSaver;
+    connect(t, SIGNAL(finished()), t, SLOT(deleteLater()));
+    t->start();
 }
 
 void Queue::saveQueues()
@@ -255,10 +254,6 @@ void Queue::loadQueue(const QDomNode& node)
                     d->load(n);
                     m_transfers << d;
                 }
-
-        //		d = new PlaceholderTransfer(n.attribute("class"));
-        //		d->load(n);
-        //		m_transfers << d;
 		}
 		
 		n = n.nextSiblingElement("download");
@@ -286,7 +281,6 @@ void Queue::saveQueue(QDomNode& node,QDomDocument& doc)
 
 int Queue::size()
 {
-	//cout << "Queue size: " << m_transfers.size() << endl;
 	return m_transfers.size();
 }
 
@@ -432,6 +426,7 @@ void Queue::setName(QString name)
 	QWriteLocker l(&m_lock);
 	m_strName = name;
 }
+
 QString Queue::name() const
 {
 	QReadLocker l(&m_lock);
@@ -480,6 +475,29 @@ bool Queue::replace(Transfer* old, Transfer* _new)
 	return true;
 }
 
+void Queue::stopAll()
+{
+    QReadLocker l(&m_lock);
+    for(int j=0;j<size();j++)
+    {
+        Transfer* t = at(j);
+        if(t->isActive())
+            t->setState(Transfer::Paused);
+    }
+}
+
+void Queue::resumeAll()
+{
+    QReadLocker l(&m_lock);
+    for(int j=0;j<size();j++)
+    {
+        Transfer* t = at(j);
+        Transfer::State state = t->state();
+        if(state == Transfer::Paused || state == Transfer::Failed)
+            t->setState(Transfer::Active);
+    }
+}
+
 bool Queue::replace(Transfer* old, QList<Transfer*> _new)
 {
 	QWriteLocker l(&m_lock);
@@ -491,29 +509,6 @@ bool Queue::replace(Transfer* old, QList<Transfer*> _new)
 	for (int j = 0; j < _new.size(); j++)
 		m_transfers.insert(i+j, _new[j]);
 	return true;
-}
-
-void Queue::stopAll()
-{
-	QReadLocker l(&m_lock);
-	for(int j=0;j<size();j++)
-	{
-		Transfer* t = at(j);
-		if(t->isActive())
-			t->setState(Transfer::Paused);
-	}
-}
-
-void Queue::resumeAll()
-{
-	QReadLocker l(&m_lock);
-	for(int j=0;j<size();j++)
-	{
-		Transfer* t = at(j);
-		Transfer::State state = t->state();
-        if(state == Transfer::Paused || state == Transfer::Failed || state == Transfer::Waiting)
-			t->setState(Transfer::Active);
-	}
 }
 
 class RecursiveRemove : public QThread
@@ -575,4 +570,63 @@ private:
 void Queue::recursiveRemove(QString what)
 {
     new RecursiveRemove(what);
+}
+
+QString Queue::getDownSpeed(){
+    int downq = 0;
+
+    lock();
+
+    for(int i=0;i<size();i++)
+    {
+        int down,up;
+        at(i)->speeds(down,up);
+
+        downq += down;
+
+    }
+    unlock();
+    return QString("%1 kB/s").arg(double(downq)/1024.f, 0, 'f', 1);
+}
+
+QString Queue::getUpSpeed(){
+    int upq = 0;
+
+    lock();
+
+    for(int i=0;i<size();i++)
+    {
+        int down,up;
+        at(i)->speeds(down,up);
+
+        upq += up;
+
+    }
+    unlock();
+    return QString("%1 kB/s").arg(double(upq)/1024.f, 0, 'f', 1);
+}
+
+void Queue::resumeTransfer(int index)
+{
+    g_queuesLock.lockForRead();
+    Queue* q = g_queues[0];
+    if(!q)
+        return;
+    Transfer* d = q->at(index);
+    if(d->state() != Transfer::Completed)
+            d->setState(Transfer::Active);
+    g_queuesLock.unlock();
+}
+
+void Queue::pauseTransfer(int index)
+{
+    g_queuesLock.lockForRead();
+    Queue* q = g_queues[0];
+    if(!q)
+        return;
+    Transfer* d = q->at(index);
+    if(d->state() == Transfer::Active)
+            d->setState(Transfer::Paused);
+    g_queuesLock.unlock();
+
 }

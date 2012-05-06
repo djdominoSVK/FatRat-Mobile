@@ -35,75 +35,38 @@ extern QSettings* g_settings;
 Proxy Proxy::loadProxy()
 {
     Proxy p;
-
-    int count = g_settings->beginReadArray("httpftp/proxys");
-    for(int i=0;i<count;i++)
-    {
-        g_settings->setArrayIndex(i);
-        p.strName = g_settings->value("name").toString();
-        p.strIP = g_settings->value("ip").toString();
-        p.nPort = g_settings->value("port").toUInt();
-        p.strUser = g_settings->value("user").toString();
-        p.strPassword = g_settings->value("password").toString();
-        p.nType = (Proxy::ProxyType) g_settings->value("type",0).toInt();
-        p.uuid = g_settings->value("uuid").toString();
-        p.enabled = g_settings->value("enabled").toBool();
-    }
+    g_settings->beginReadArray("httpftp/proxys");
+    g_settings->setArrayIndex(0);
+    p.strName = g_settings->value("name").toString();
+    p.strIP = g_settings->value("ip").toString();
+    p.nPort = g_settings->value("port").toUInt();
+    p.strUser = g_settings->value("user").toString();
+    p.strPassword = g_settings->value("password").toString();
+    p.nType = (Proxy::ProxyType) g_settings->value("type",0).toInt();
+    p.uuid = g_settings->value("uuid").toString();
+    p.enabled = g_settings->value("enabled").toBool();
     g_settings->endArray();
     return p;
 }
 
-//QList<Proxy> Proxy::loadProxys()
-//{
-//	QList<Proxy> r;
-	
-////	int count = g_settings->beginReadArray("httpftp/proxys");
-//    int count = 0;
-//    for(int i=0;i<count;i++)
-//	{
-//		Proxy p;
-//		g_settings->setArrayIndex(i);
-		
-//		p.strName = g_settings->value("name").toString();
-//		p.strIP = g_settings->value("ip").toString();
-//		p.nPort = g_settings->value("port").toUInt();
-//		p.strUser = g_settings->value("user").toString();
-//		p.strPassword = g_settings->value("password").toString();
-//		p.nType = (Proxy::ProxyType) g_settings->value("type",0).toInt();
-//		p.uuid = g_settings->value("uuid").toString();
-		
-//		r << p;
-//	}
-////	g_settings->endArray();
-//	return r;
-//}
-
-
 Proxy Proxy::getProxy(QUuid uuid)
 {
-	if(uuid.isNull())
-		return Proxy();
-//    int count = 0;
-    int count = g_settings->beginReadArray("httpftp/proxys");
-    for(int i=0;i<count;i++)
-    {
-		Proxy p;
-        g_settings->setArrayIndex(i);
-		
-        p.uuid = g_settings->value("uuid").toString();
-       // if(p.uuid != uuid)
-            //continue;
-		
-        p.strName = g_settings->value("name").toString();
-        p.strIP = g_settings->value("ip").toString();
-        p.nPort = g_settings->value("port").toUInt();
-        p.strUser = g_settings->value("user").toString();
-        p.strPassword = g_settings->value("password").toString();
-        p.nType = (Proxy::ProxyType) g_settings->value("type",0).toInt();
-        p.enabled = g_settings->value("enabled").toBool();
-        g_settings->endArray();
-		return p;
-    }
+    if(uuid.isNull())
+        return Proxy();
+    g_settings->beginReadArray("httpftp/proxys");
+
+    Proxy p;
+    g_settings->setArrayIndex(0);
+    p.uuid = g_settings->value("uuid").toString();
+    p.strName = g_settings->value("name").toString();
+    p.strIP = g_settings->value("ip").toString();
+    p.nPort = g_settings->value("port").toUInt();
+    p.strUser = g_settings->value("user").toString();
+    p.strPassword = g_settings->value("password").toString();
+    p.nType = (Proxy::ProxyType) g_settings->value("type",0).toInt();
+    p.enabled = g_settings->value("enabled").toBool();
+    g_settings->endArray();
+    return p;
 }
 
 Proxy::operator QNetworkProxy() const
@@ -149,27 +112,6 @@ QString Proxy::getName(){
     g_settings->endArray();
     return name;
 }
-//QString Proxy::getIp(){
-//    g_settings->beginReadArray("httpftp/proxys");
-//    g_settings->setArrayIndex(0);
-//    QString ip = g_settings->value("ip").toString();
-//    g_settings->endArray();
-//    return ip;
-//}
-//QString Proxy::getPort(){
-//    g_settings->beginReadArray("httpftp/proxys");
-//    g_settings->setArrayIndex(0);
-//    QString port = g_settings->value("port").toString();
-//    g_settings->endArray();
-//    return port;
-//}
-//QString Proxy::getPort(){
-//    g_settings->beginReadArray("httpftp/proxys");
-//    g_settings->setArrayIndex(0);
-//    QString port = g_settings->value("port").toString();
-//    g_settings->endArray();
-//    return port;
-//}
 
 bool Proxy::isProxyEnabled(){
     g_settings->beginReadArray("httpftp/proxys");

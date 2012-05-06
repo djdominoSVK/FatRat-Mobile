@@ -86,40 +86,6 @@ QModelIndex TransfersModel::index(int row, int column, const QModelIndex &parent
 		return QModelIndex();
 }
 
-QVariant TransfersModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-    {
-        switch(section)
-        {
-        //case 0:
-        //	return tr("State");
-        case 0:
-            return tr("Name");
-        case 1:
-            return tr("Progress");
-        case 2:
-            return tr("Size");
-        case 3:
-        case 4:
-            return tr("Speed");
-        case 5:
-            return tr("Time left");
-        case 6:
-            return tr("Message");
-        }
-    }
-    if(role == Qt::DecorationRole)
-    {
-        if(section == 3)
-            return QIcon(":/states/download.png");
-        else if(section == 4)
-            return QIcon(":/states/upload.png");
-    }
-
-    return QVariant();
-}
-
 int TransfersModel::rowCount(const QModelIndex &parent) const
 {
 	int count = 0;
@@ -151,37 +117,19 @@ void TransfersModel::refresh()
 	
         m_lastData.resize(count);
 	
-        QList<bool> changes;
-        QString filter;
-	
+        QList<bool> changes;	
         if(q != 0)
         {
                 q->lock();
-		
-                int filtered = 0;
                 for(int i=0,j=0;i<count;i++,j++)
                 {
                         Transfer* t = q->at(i);
-                        RowData* newData;
-                        //const RowData newData;
-
-                        if (!filter.isEmpty())
-                                m_filterMapping[j] = i;
-                        if (!filter.isEmpty() && !t->name().contains(filter, Qt::CaseInsensitive))
-                        {
-                                filtered++;
-                                j--;
-                                continue;
-                        }
-			
+                        RowData* newData;			
                         if(t != 0)
-                                newData = new RowData(t);
-			
+                                newData = new RowData(t);			
                         changes << (newData != (&m_lastData[j])) ;
-                        qDebug() << m_lastData[j].fProgress();
                         m_lastData[j] = *newData;
                 }
-                count -= filtered;
                 q->unlock();
         }
         g_queuesLock.unlock();
@@ -198,8 +146,7 @@ void TransfersModel::refresh()
                 beginRemoveRows(QModelIndex(), count, m_nLastRowCount-1);
                 endRemoveRows();
         }
-        m_nLastRowCount = count;
-	
+        m_nLastRowCount = count;	
         for(int i=0;i<count;)
         {
                 if(!changes[i])
@@ -225,11 +172,6 @@ bool TransfersModel::hasChildren (const QModelIndex & parent) const
 	return !parent.isValid();
 }
 
-int TransfersModel::columnCount(const QModelIndex&) const
-{
-	return 7;
-}
-
 
 QVariant TransfersModel::data(const QModelIndex & index, int role) const {
     if (index.row() < 0 || index.row() > m_lastData.count())
@@ -243,14 +185,13 @@ QVariant TransfersModel::data(const QModelIndex & index, int role) const {
         if(m_lastData[index.row()].mode() == Transfer::Upload)
         {
             if(state == Transfer::Completed && m_lastData[index.row()].primaryMode() == Transfer::Download)
-                return m_states[5]; // an exception for download-oriented transfers
+                return m_states[5];
             else
                 return m_states[state+6];
         }
         else
             return m_states[state];
     }
-
     case 1:
         return m_lastData[index.row()].name();
     case 2:
@@ -278,7 +219,6 @@ QVariant TransfersModel::data(const QModelIndex & index, int role) const {
     case 13:
         return m_lastData[index.row()].source();
     }
-
     return QVariant();
 }
 
@@ -290,23 +230,3 @@ void TransfersModel::setQueue(int q)
     refresh();
 }
 
-
-Qt::ItemFlags TransfersModel::flags(const QModelIndex &index) const
-{
-	Qt::ItemFlags defaultFlags = QAbstractListModel::flags(index);
-
-	if(index.isValid())
-		return Qt::ItemIsDragEnabled | defaultFlags;
-	else
-		return defaultFlags;
-}
-
-
-
-int TransfersModel::remapIndex(int index)
-{
-	if (m_filterMapping.contains(index))
-		return m_filterMapping[index];
-	else
-		return index;
-}

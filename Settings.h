@@ -30,9 +30,6 @@ respects for all of the code used other than "OpenSSL".
 #include <QString>
 #include <QIcon>
 #include <QSettings>
-//#include "config.h"
-//#include "WidgetHostChild.h"
-//#include "DelayedIcon.h"
 
 struct SettingsItem;
 extern QVector<SettingsItem> g_settingsPages;
@@ -40,15 +37,8 @@ extern QSettings* g_settings;
 
 struct SettingsItem
 {
-    //SettingsItem() : lpfnCreate(0), pfnApply(0) {}
-
-	// icon to show in the settings dialog (GUI only)
-    //DelayedIcon icon;
-	// title to show in the settings dialog (GUI and WebUI)
+    SettingsItem() :  pfnApply(0) {}
     QString title;
-	// function to call to create a settings subdialog (GUI only)
-    //WidgetHostChild* (*lpfnCreate)(QWidget*, QObject*);
-	// function to call to apply or settings changes (GUI and WebUI), optional
 	void (*pfnApply)();
 };
 
@@ -58,7 +48,6 @@ QVariant getSettingsValue(QString id, QVariant def = QVariant());
 QList<QMap<QString, QVariant> > getSettingsArray(QString id);
 void setSettingsValue(QString id, QVariant value);
 void setSettingsArray(QString id, QList<QMap<QString, QVariant> >& value);
-
 void initSettingsDefaults(QString manualPath = QString());
 void exitSettings();
 

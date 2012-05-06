@@ -5,14 +5,14 @@ Page {
 
     id: proxyPage
     orientationLock: PageOrientation.LockPortrait
-    state: newTransfer.isProxyEnabled() ? "enabled" : "disabled"
+    state: settingsMethods.isProxyEnabled() ? "enabled" : "disabled"
     CheckBox{
         id: enabledCheckBox
         anchors.top: headerLabel.bottom
         anchors.left: parent.left
         anchors.leftMargin: 10
         anchors.topMargin: 40
-        checked: newTransfer.isProxyEnabled()
+        checked: settingsMethods.isProxyEnabled()
         onClicked: {
             if(checked){
                 parent.state= "enabled"
@@ -50,7 +50,7 @@ Page {
          anchors.right: parent.right
          anchors.rightMargin: 35
          anchors.bottomMargin: 20
-         text: newTransfer.getProxyName()
+         text: settingsMethods.getProxyName()
      }
      Text {
          id: ipText
@@ -67,7 +67,7 @@ Page {
          anchors.right: parent.right
          anchors.rightMargin: 35
          anchors.topMargin: 30
-         text: newTransfer.getIp()
+         text: settingsMethods.getIp()
      }
      Text {
          id: portText
@@ -84,7 +84,7 @@ Page {
          anchors.right: parent.right
          anchors.rightMargin: 35
          anchors.topMargin: 30
-         text: (newTransfer.getPort() === "") ? "80" : newTransfer.getPort()
+         text: (settingsMethods.getPort() === "") ? "80" : settingsMethods.getPort()
      }
      Text {
          id: userText
@@ -101,7 +101,7 @@ Page {
          anchors.right: parent.right
          anchors.rightMargin: 35
          anchors.topMargin: 30
-         text: newTransfer.getUser()
+         text: settingsMethods.getUser()
      }
      Text {
          id: passwordText
@@ -119,7 +119,7 @@ Page {
          anchors.rightMargin: 35
          anchors.topMargin: 30
          echoMode: TextInput.Password
-         text: newTransfer.getPassword()
+         text: settingsMethods.getPassword()
      }
 
      CheckBox{
@@ -167,7 +167,7 @@ Page {
         anchors.topMargin: 30
         anchors.right: parent.right
         anchors.rightMargin: 35
-        text: (newTransfer.getType() === 0) ? "HTTP" : "SOCKS 5"
+        text: (ett.getType() === 0) ? "HTTP" : "SOCKS 5"
         width: 250
         onClicked: {
             proxyTypeSingleSelectionDialog.open();
@@ -201,7 +201,7 @@ Page {
     SelectionDialog {
         id: proxyTypeSingleSelectionDialog
         titleText: "Download as:"
-        selectedIndex: newTransfer.getType()
+        selectedIndex: settingsMethods.getType()
         model: ListModel {
             ListElement { name: "HTTP"}
             ListElement { name: "SOCKS 5" }
@@ -220,16 +220,16 @@ Page {
             anchors.right: parent.right
             anchors.rightMargin: 5;
             iconId: "toolbar-back"
-            // on click signal pop the page from the stack to go back
             onClicked: appWindow.pageStack.pop();
         }
         ToolButton{
             anchors.left: parent.left
             anchors.leftMargin: 5;
             text: "Save"
-            onClicked: { newTransfer.saveProxy(proxyTypeSingleSelectionDialog.selectedIndex,nameTextEdit.text,
+            onClicked: { settingsMethods.saveProxy(proxyTypeSingleSelectionDialog.selectedIndex,nameTextEdit.text,
                                                  ipTextEdit.text,portTextEdit.text,userTextEdit.text,passwordTextEdit.text,
                                                  enabledCheckBox.checked)
+                         appWindow.pageStack.pop()
                        }
         }
     }

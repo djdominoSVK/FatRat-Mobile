@@ -10,7 +10,6 @@ Page {
     function deleteWithData(index)
     {if ((index>-1)&&(listTransfers.count>index)){
             queue.removeWithData(index,false)
-
         }
         listViewPage.state = "active"
     }
@@ -25,10 +24,7 @@ Page {
 
 
     Component {
-
-
         id: transferDelegate
-
         Item {
             id: transfer
 
@@ -45,7 +41,7 @@ Page {
                 anchors.left: parent.left
                 onClicked: {
                     listTransfers.currentIndex = index
-                    transfer.state = 'Details'
+                    transfer.state = 'details'
                     listViewPage.state = "details"
                 }
                 onPressAndHold: {
@@ -156,7 +152,7 @@ Page {
                     anchors.right: parent.right
                     anchors.rightMargin: 10
                     font.pixelSize: 24
-                    elide: Text.ElideRight
+                    elide: Text.ElideMiddle
                     text: source
                     MouseArea{
                         anchors.fill: parent
@@ -186,10 +182,16 @@ Page {
                     anchors.leftMargin: 10
                     anchors.right: parent.right
                     anchors.rightMargin: 10
-
                     font.pixelSize: 24
-                   // elide: Text.ElideRight
+                    elide: Text.ElideMiddle
                     text: destination
+                    MouseArea{
+                        anchors.fill: parent
+                        onPressAndHold: {
+                            urlTransferDialog.url= transferDestinatipon.text
+                            urlTransferDialog.open()
+                        }
+                    }
                 }
 
                 Label {
@@ -238,13 +240,14 @@ Page {
                     anchors.leftMargin: 10
                     font.pixelSize: 24
                     font.bold: true
+                    elide: Text.ElideRight
                     text: "Message: "
                 }
                 Text {
                     id: transferMessage
                     anchors.top: messageLabel.bottom
                     anchors.topMargin: 10
-                    anchors.left: parent.right
+                    anchors.left: parent.left
                     anchors.leftMargin: 10
                     anchors.right: parent.right
                     anchors.rightMargin: 10
@@ -257,13 +260,9 @@ Page {
 
 
             states: State {
-                name: "Details"
+                name: "details"
                 PropertyChanges {target: iconBack; onClicked:{
                         transfer.state = ''
-                        iconMenu.visible = true
-                        iconAdd.visible = true
-                        iconDelete.visible = false
-                        iconBack.visible= false
                         listViewPage.state = "active"
                         listTransfers.currentIndex = -1}}
                 PropertyChanges { target: transfer; detailsOpacity: 1; x: 0 }
@@ -277,7 +276,6 @@ Page {
             }
 
             transitions: Transition {
-                // Make the state changes smooth
                 ParallelAnimation {
                     ColorAnimation { property: "color"; duration: 500 }
                     NumberAnimation { duration: 300; properties: "detailsOpacity,x,contentY,height,width" }
@@ -285,9 +283,6 @@ Page {
             }
         }
     }
-
-
-
 
     ListView {
         id: listTransfers
@@ -318,7 +313,7 @@ Page {
                 itemList.refresh()
                 downloadText.text = "Download: " + queue.getDownSpeed()
                 uploadText.text = "Upload: " + queue.getUpSpeed()
-                refresh.interval = newTransfer.getRefresh() * 1000
+                refresh.interval = settingsMethods.getRefresh() * 1000
 
             }
         }
@@ -569,8 +564,6 @@ Page {
                 else{
                     qmgr.pauseAllTransfers()
                 }
-
-
             }
         }
         ToolIcon {

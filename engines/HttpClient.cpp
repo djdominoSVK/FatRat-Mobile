@@ -32,22 +32,20 @@ HttpEngine::HttpEngine(QUrl url, QUrl referrer, QUuid proxyUuid) : m_pRemote(0),
 
     m_proxyData.nType = Proxy::ProxyNone;
 	
-	host = url.host();
-	if(url.port(80) != 80)
-		host += QString(":") + QString::number(url.port(80));
-	
-//	foreach(Proxy p,listProxy)
-//	{
+    host = url.host();
+    if(url.port(80) != 80)
+        host += QString(":") + QString::number(url.port(80));
+
+
     if (Proxy::isProxyEnabled()){
         Proxy p = Proxy:: loadProxy();
-            if(p.uuid == proxyUuid)
-            {
-                m_proxyData = p;
-    //			break;
-            }
+        if(p.uuid == proxyUuid)
+        {
+            m_proxyData = p;
+
+        }
     }
 
-//	}
 	
 	if(!url.hasQuery())
 		query = url.path();
@@ -74,7 +72,6 @@ HttpEngine::HttpEngine(QUrl url, QUrl referrer, QUuid proxyUuid) : m_pRemote(0),
 		m_header.addValue("Referrer", referrer.toString());
 	
 	m_header.addValue("Host", host);
-   // m_header.addValue("User-Agent", "FatRat/" VERSION);
 	m_header.addValue("Connection", "close");
 }
 
@@ -82,7 +79,6 @@ void HttpEngine::request(QString file, bool bUpload, int)
 {
 	if(LimitedSocket::open(file, bUpload))
 	{
-		// when we're uploading, it's fully up to the class' user to add special request headers etc.
 		if(!bUpload)
 		{
 			m_nResume = m_file.pos();
@@ -164,9 +160,9 @@ void HttpEngine::run()
 		m_pRemote->setReadBufferSize(1024);
 		
 		if(!m_pRemote->waitForConnected())
-			throw getErrorString(m_pRemote->error());
-		if(m_bAbort)
-			return;
+            throw getErrorString(m_pRemote->error());
+        if(m_bAbort)
+            return;
 		
 		m_pRemote->write(m_header.toString().toAscii());
 		m_pRemote->write("\r\n", 2);

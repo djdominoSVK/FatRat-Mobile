@@ -28,13 +28,11 @@ respects for all of the code used other than "OpenSSL".
 #include "Transfer.h"
 #include "Queue.h"
 
-#include "engines/FakeDownload.h"
 #include "engines/GeneralDownload.h"
 #include "engines/FtpUpload.h"
 
 #include <QtDebug>
 #include <QDir>
-#include <QMessageBox>
 #include <QVariant>
 #include <QProcess>
 
@@ -47,16 +45,12 @@ extern QReadWriteLock g_queuesLock;
 void initTransferClasses()
 {
     {
-    EngineEntry e = { "FakeDownload", "Fake engine", 0, 0, { FakeDownload::createInstance }, { FakeDownload::acceptable }, 0 };
-    g_enginesDownload << e;
-	}
-    {
-    EngineEntry e = {  "GeneralDownload", GENERALDOWNLOAD_DESCR, 0, 0, {GeneralDownload::createInstance},{ GeneralDownload::acceptable}, 0  };
+    EngineEntry e = {  "GeneralDownload", GENERALDOWNLOAD_DESCR, 0, 0, {GeneralDownload::createInstance},{ GeneralDownload::acceptable}  };
     g_enginesDownload << e;
 
     }
     {
-    EngineEntry e = { "FtpUpload", FTPUPLOAD_DESCR, 0, 0, {FtpUpload::createInstance}, {FtpUpload::acceptable}, 0};
+    EngineEntry e = { "FtpUpload", FTPUPLOAD_DESCR, 0, 0, {FtpUpload::createInstance}, {FtpUpload::acceptable}};
     g_enginesUpload << e;
     }
 
@@ -167,32 +161,6 @@ Transfer* Transfer::createInstance(Mode mode, int classID)
 	return entries[classID].lpfnCreate2(&entries[classID]);
 }
 
-bool Transfer::runProperties(QWidget* parent, Mode mode, int classID, QList<Transfer*> objects)
-{
-	const EngineEntry* entries = engines(mode);
-	bool err = false;
-
-	if(!entries[classID].lpfnMultiOptions)
-	    err = true;
-	if(!err)
-	{
-		int result;
-		QDialog* dlg = entries[classID].lpfnMultiOptions(parent, objects);
-
-		if(dlg)
-		{
-		    result = dlg->exec();
-
-		    delete dlg;
-		    return result == QDialog::Accepted;
-		}
-		else
-		    err = true;
-	}
-	if(err)
-		QMessageBox::information(parent, "FatRat", tr("This transfer type has no advanced options to set."));
-	return true;
-}
 
 const EngineEntry* Transfer::engines(Mode type)
 {
@@ -260,9 +228,6 @@ void Transfer::setState(State newState)
 	
 	enterLogMessage(tr("Changed state: %1 -> %2").arg(state2string(m_state)).arg(state2string(newState)));
 	
-	if(newState == Completed)
-		fireCompleted();
-	
 	m_state = newState;
 	now = isActive();
 	
@@ -278,7 +243,6 @@ void Transfer::setState(State newState)
 	}
 	
 	if(!m_bLocal)
-//		emit TransferNotifier::instance()->stateChanged(this, m_lastState, newState);
 	emit stateChanged(m_state, newState);
 }
 
@@ -363,22 +327,10 @@ void Transfer::save(QDomDocument& doc, QDomNode& node) const
 
 void Transfer::setMode(Mode newMode)
 {
-	if(!m_bLocal)
-//		emit TransferNotifier::instance()->modeChanged(this, m_mode, newMode);
 	emit modeChanged(m_mode, newMode);
 	m_mode = newMode;
 }
 
-void Transfer::updateGraph()
-{
-	int down, up;
-	
-	speeds(down,up);
-	
-//	if(m_qSpeedData.size() >= getSettingsValue("graphminutes").toInt()*60)
-		m_qSpeedData.dequeue();
-	m_qSpeedData.enqueue(QPair<int,int>(down,up));
-}
 
 QString Transfer::getXMLProperty(const QDomNode& node, QString name)
 {
@@ -427,59 +379,14 @@ QString Transfer::dataPath(bool bDirect) const
 
 void Transfer::retry()
 {
-	m_nRetryCount++;
+    m_nRetryCount++;
 
-	if (m_lastState == ForcedActive)
-		setState(ForcedActive);
-	else
-		setState(Waiting);
+    if (m_lastState == ForcedActive)
+        setState(ForcedActive);
+    else
+        setState(Waiting);
 }
 
-void Transfer::fireCompleted()
-{
-	if(m_strCommandCompleted.isEmpty())
-		return;
-	
-	QString exec = m_strCommandCompleted;
-	for(int i=0;i<exec.size() - 1;)
-	{
-		if(exec[i++] != '%')
-			continue;
-		QChar t = exec[i];
-		QString text;
-		
-		if(t == QChar('N')) // transfer name
-			text = name();
-		else if(t == QChar('T')) // transfer type
-			text = myClass();
-		else if(t == QChar('D')) // destination directory
-			text = dataPath(false);
-		else if(t == QChar('P')) // data path
-			text = dataPath(true);
-		else
-			continue;
-		
-		exec.replace(i-1, 2, text);
-		i += text.size() - 1;
-	}
-	
-	qDebug() << "Executing" << exec;
-	
-	QProcess::startDetached(exec);
-}
-
-QString Transfer::autoActionCommand(State state) const
-{
-	if(state == Completed)
-		return m_strCommandCompleted;
-	return QString();
-}
-
-void Transfer::setAutoActionCommand(State state, QString command)
-{
-	if(state == Completed)
-		m_strCommandCompleted = command;
-}
 
 QString Transfer::stateString() const
 {
@@ -491,9 +398,6 @@ void Transfer::setStateString(QString s)
 	setState(string2state(s));
 }
 
-void Transfer::setSpeedLimits(int down,int up)
-{
-}
 
 QString Transfer::uuid() const
 {
@@ -526,22 +430,42 @@ void Transfer::replaceItself(Transfer::TransferList newObjects)
 	}
 }
 
-Queue* Transfer::myQueue() const
-{
-	QReadLocker l(&g_queuesLock);
-	foreach (Queue* q, g_queues)
-	{
-		if (q->contains(const_cast<Transfer*>(this)))
-			return q;
-	}
-	return 0;
-}
-
 QString Transfer::url() const
 {return m_strUrl;}
 
 void Transfer::setUrl(QString url){
     m_strUrl= url;
+}
+
+void Transfer::runEngines(bool init)
+{
+        for(int i=0;i<g_enginesDownload.size();i++)
+        {
+                if(init)
+                {
+                        if(g_enginesDownload[i].lpfnInit)
+                                g_enginesDownload[i].lpfnInit();
+                }
+                else
+                {
+                        if(g_enginesDownload[i].lpfnExit)
+                                g_enginesDownload[i].lpfnExit();
+                }
+        }
+
+        for(int i=0;i<g_enginesUpload.size();i++)
+        {
+                if(init)
+                {
+                        if(g_enginesUpload[i].lpfnInit)
+                                g_enginesUpload[i].lpfnInit();
+                }
+                else
+                {
+                        if(g_enginesUpload[i].lpfnExit)
+                                g_enginesUpload[i].lpfnExit();
+                }
+        }
 }
 
 

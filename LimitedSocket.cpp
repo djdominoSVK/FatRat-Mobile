@@ -187,7 +187,7 @@ bool LimitedSocket::writeCycle()
 	
 	m_nTransfered += toRead;
 	
-	QTime now = QTime::currentTime();
+    //QTime now = QTime::currentTime();
 	int msecs;
 	qint64 bytes = m_nTransfered - m_prevBytes;
 	
@@ -208,7 +208,7 @@ bool LimitedSocket::writeCycle()
 			msleep(sleeptime*2);
 	}
 	
-	return true;
+    return true;
 }
 
 bool LimitedSocket::readCycle()
@@ -278,7 +278,7 @@ bool LimitedSocket::readCycle()
 	}
 	else if(!m_bAbort)
 	{
-		QTime now = QTime::currentTime();
+//		QTime now = QTime::currentTime();
 		qulonglong bnow = m_nTransfered;
 
 		int msecs;

@@ -38,11 +38,6 @@ respects for all of the code used other than "OpenSSL".
 
 struct EngineEntry;
 class QObject;
-class QWidget;
-class WidgetHostChild;
-class QIcon;
-class QMenu;
-class QDialog;
 class Queue;
 
 class Transfer : public Logger
@@ -54,8 +49,6 @@ public:
 	
 	enum State { Waiting, Active, ForcedActive, Paused, Failed, Completed };
 	
-	// Note that Download oriented class may switch its mode to Upload!
-	// Example: finished BitTorrent download switches to the seeding mode.
 	enum Mode { ModeInvalid, Download, Upload };
 	
 	virtual void init(QString source, QString target) = 0;
@@ -92,14 +85,12 @@ public:
 	Q_PROPERTY(QString message READ message)
 	Q_INVOKABLE Mode mode() const { return m_mode; }
 	Q_PROPERTY(Transfer::Mode mode READ mode)
-	Q_INVOKABLE virtual Mode primaryMode() const { return Download; } // because the BitTorrent transfer may switch modes at run-time
+    Q_INVOKABLE virtual Mode primaryMode() const { return Download; }
 	Q_PROPERTY(Transfer::Mode primaryMode READ primaryMode)
 	// If direct is true: returns the path of the file being downloaded
 	// If direct is false: returns the directory where that file is located
 	Q_INVOKABLE virtual QString dataPath(bool bDirect = true) const;
 	Q_PROPERTY(QString dataPath READ dataPath)
-	
-
     Q_INVOKABLE QString url() const;
     Q_INVOKABLE void setUrl(QString url);
 
@@ -118,22 +109,13 @@ public:
 	virtual void load(const QDomNode& map);
 	virtual void save(QDomDocument& doc, QDomNode& map) const;
 	
-	// TRANSFER OPTIONS/DETAILS
-	virtual WidgetHostChild* createOptionsWidget(QWidget*) { return 0; } // options (properties) of a particular download
-	virtual QObject* createDetailsWidget(QWidget*) { return 0; } // detailed view
-	virtual void fillContextMenu(QMenu&) { }
 	
-	// LOGGING
 	QQueue<QPair<int,int> > speedData() const { return m_qSpeedData; }
 	
 	// COMMENT
-	Q_INVOKABLE QString comment() const { return m_strComment; }
-	Q_INVOKABLE void setComment(QString text) { m_strComment = text; }
-	Q_PROPERTY(QString comment WRITE setComment READ comment)
-	
-	// AUTO ACTIONS
-	QString autoActionCommand(State state) const;
-	void setAutoActionCommand(State state, QString command);
+    Q_INVOKABLE QString comment() const { return m_strComment; }
+    Q_INVOKABLE void setComment(QString text) { m_strComment = text; }
+    Q_PROPERTY(QString comment WRITE setComment READ comment)
 	
 	Q_INVOKABLE QString uuid() const;
 	Q_PROPERTY(QString uuid READ uuid)
@@ -143,7 +125,6 @@ public:
 	static QString state2string(State s);
 	static Transfer* createInstance(QString className);
 	static Transfer* createInstance(Mode mode, int classID);
-	static bool runProperties(QWidget* parent, Mode mode, int classID, QList<Transfer*> objects);
 	
 	struct BestEngine
 	{
@@ -162,10 +143,11 @@ public:
 	
 	// SETTINGS UTILITY FUNCTIONS
 	static QString getXMLProperty(const QDomNode& node, QString name);
-	static void setXMLProperty(QDomDocument& doc, QDomNode& node, QString name, QString value);
-	
+    static void setXMLProperty(QDomDocument& doc, QDomNode& node, QString name, QString value);
+
 	void internalSpeedLimits(int& down, int& up) const { down=m_nDownLimitInt; up = m_nUpLimitInt; }
 
+    static void runEngines(bool init);
 	typedef QList<Transfer*> TransferList;
 signals:
 	void stateChanged(Transfer::State prev, Transfer::State now);
@@ -174,7 +156,7 @@ public slots:
 	void retry();
 protected:
 	virtual void changeActive(bool nowActive) = 0;
-	virtual void setSpeedLimits(int down,int up);
+    virtual void setSpeedLimits(int down,int up) = 0;
 	void setInternalSpeedLimits(int down,int up);
 	void setMode(Mode mode);
 	void fireCompleted();
@@ -225,7 +207,6 @@ struct EngineEntry
 		int (*lpfnAcceptable)(QString, bool /*localSearch*/);
 		int (*lpfnAcceptable2)(QString, bool /*localSearch*/, const EngineEntry*);
 	};
-	QDialog* (*lpfnMultiOptions)(QWidget* /*parent*/, QList<Transfer*>& /*transfers*/); // mass proprerties changing
 };
 
 enum FtpMode { FtpActive = 0, FtpPassive };

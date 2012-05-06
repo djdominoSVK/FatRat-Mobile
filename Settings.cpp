@@ -25,7 +25,6 @@ executables. You must obey the GNU General Public License in all
 respects for all of the code used other than "OpenSSL".
 */
 
-//#include "fatrat.h"
 
 #include "Settings.h"
 #include <QApplication>
@@ -35,14 +34,6 @@ respects for all of the code used other than "OpenSSL".
 #include <QDebug>
 #include <QMessageBox>
 #include <iostream>
-
-//#include "SettingsGeneralForm.h"
-//#include "SettingsDropBoxForm.h"
-//#include "SettingsNetworkForm.h"
-//#include "SettingsQueueForm.h"
-//#include "SettingsSchedulerForm.h"
-//#include "SettingsClipboardMonitorForm.h"
-//#include "rss/SettingsRssForm.h"
 
 QVector<SettingsItem> g_settingsPages;
 QSettings* g_settings = 0;
@@ -102,25 +93,12 @@ void setSettingsValue(QString id, QVariant value)
 
 void initSettingsDefaults(QString manualPath)
 {
-	if (manualPath.isEmpty())
-		g_settings = new QSettings;
-	else
+    if (manualPath.isEmpty())
+        g_settings = new QSettings;
+    else
         g_settings = new QSettings(manualPath, QSettings::IniFormat, qApp);
-	
-	QLatin1String df("/defaults.conf");
-    QString path = "/home";
-//	QString path = getDataFileDir("/data", df) + df;
 
-	if (!QFile::exists(path)) {
-		const char* error = "Your installation is incomplete.\nIf you compiled FatRat from source, please learn how to install programs first!\n";
-		std::cerr << error;
-
-		if (getenv("DISPLAY"))
-			QMessageBox::critical(0, "FatRat", error);
-		exit(1);
-	}
-
-    m_settingsDefaults = new QSettings(path, QSettings::IniFormat, qApp);
+    m_settingsDefaults = new QSettings;
 }
 
 void exitSettings()
@@ -131,16 +109,5 @@ void exitSettings()
 QVariant getSettingsDefault(QString id)
 {
 	return m_settingsDefaults->value(id);
-}
-
-void applyAllSettings()
-{
-	for (int i = 0; i < g_settingsPages.size(); i++)
-	{
-		if (g_settingsPages[i].pfnApply) {
-			qDebug() << "Applying" << g_settingsPages[i].title;
-			g_settingsPages[i].pfnApply();
-		}
-	}
 }
 
