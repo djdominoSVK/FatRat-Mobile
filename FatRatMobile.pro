@@ -85,5 +85,4 @@ HEADERS += \
     engines/FtpClient.h \
     plugins/Plugins.h \
     SettingsMethods.h \
-    TransfersMethods.h \
-    NewTransferDlg.h
+    TransfersMethods.h
