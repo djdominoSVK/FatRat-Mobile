@@ -19,11 +19,27 @@ extern QVector<EngineEntry> g_enginesDownload;
 extern QVector<EngineEntry> g_enginesUpload;
 
 
+/**
+ * @brief simple constructor
+ *
+ * @param parent
+ */
 TransfersMethods::TransfersMethods(QObject *parent) :
     QObject(parent)
 {
 }
 
+/**
+ * @brief creating new transfer
+ *
+ * @param m_strURIs transfers urls
+ * @param downloadTrueUploadFalse boolean value for download or upload
+ * @param m_nClass download type default -1
+ * @param m_strDestination destination fo transfer
+ * @param m_nDownLimit down limit of transfer
+ * @param m_nUpLimit up limit of transfer
+ * @param m_bPaused boolean true if transfer is paused
+ */
 void TransfersMethods::createTransfer(QString m_strURIs,bool downloadTrueUploadFalse,int m_nClass,QString m_strDestination,
                                      int m_nDownLimit,int m_nUpLimit,bool m_bPaused)
 {
@@ -138,6 +154,12 @@ void TransfersMethods::createTransfer(QString m_strURIs,bool downloadTrueUploadF
 }
 
 
+/**
+ * @brief getting download links form file
+ *
+ * @param filename source file
+ * @return QString  links for file
+ */
 QString TransfersMethods::getLinksFromFile(QString filename ){
     if(!filename.isNull())
     {
@@ -153,10 +175,49 @@ QString TransfersMethods::getLinksFromFile(QString filename ){
     return "";
 }
 
-QString TransfersMethods:: removeFileFromString(QString filename ){
-    return filename.split("file://")[1];
+/**
+ * @brief removing tag "file://" from qstring
+ *
+ * @param filename source name to remove tag
+ * @return QString returns name without tag "file://"
+ */
+QString TransfersMethods::removeFileFromString(QString filename ){
+    QStringList list = filename.split("file://");
+    if (list.size()>1){
+        return list[1];
+    }
+    else return NULL;
 }
 
+/**
+ * @brief setting up user
+ *
+ * @param regExp name of server useless in this implementation
+ * @param user login
+ * @param pass password
+ */
+void TransfersMethods::authData(QString regExp, QString user, QString pass) {
+    m_auth.strRegExp = regExp;
+    m_auth.strUser = user;
+    m_auth.strPassword = pass;
+}
 
+/**
+ * @brief returns login
+ *
+ * @return QString login
+ */
+QString TransfersMethods::authUsername(){
+    return m_auth.strUser;
+}
+
+/**
+ * @brief returns password
+ *
+ * @return QString password
+ */
+QString TransfersMethods::authPassword(){
+    return m_auth.strPassword;
+}
 
 

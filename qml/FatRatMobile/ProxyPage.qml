@@ -173,29 +173,7 @@ Page {
             proxyTypeSingleSelectionDialog.open();
         }
     }
-    //    Button{
-    //        id: test
-    //        anchors.top: proxyTypeSingleSelectionDialogButton.bottom
-    //        anchors.topMargin: 30
-    //        anchors.right: parent.right
-    //        anchors.rightMargin: 35
-    //        text: "Save"
-    //        onClicked: {
-    //                       newTransfer.saveProxy(proxyTypeSingleSelectionDialog.selectedIndex,nameTextEdit.text,
-    //                                             ipTextEdit.text,portTextEdit.text,userTextEdit.text,passwordTextEdit.text,
-    //                                             enabledCheckBox.checked)
-    //                   }
-    //    }
-    //    Button {
-    //        anchors.top: test.bottom
-    //        anchors.topMargin: 30
-    //        anchors.right: parent.right
-    //        anchors.rightMargin: 35
-    //       //iconId: "toolbar-back"
-    //        // on click signal pop the page from the stack to go back
-    //        onClicked: appWindow.pageStack.pop();
-    //    }
-    }
+ }
 
 
     SelectionDialog {
@@ -217,14 +195,15 @@ Page {
     tools: ToolBarLayout {
         id: pageSpecificTools
         ToolIcon {
-            anchors.right: parent.right
-            anchors.rightMargin: 5;
+
+            anchors.left: parent.left
+            anchors.leftMargin: 5;
             iconId: "toolbar-back"
             onClicked: appWindow.pageStack.pop();
         }
         ToolButton{
-            anchors.left: parent.left
-            anchors.leftMargin: 5;
+            anchors.right: parent.right
+            anchors.rightMargin: 10
             text: "Save"
             onClicked: { settingsMethods.saveProxy(proxyTypeSingleSelectionDialog.selectedIndex,nameTextEdit.text,
                                                  ipTextEdit.text,portTextEdit.text,userTextEdit.text,passwordTextEdit.text,
@@ -266,7 +245,6 @@ Page {
             elide: Text.ElideRight
 
             font {
-                //family: platformLabelStyle.fontFamily
                 pixelSize: 32
             }
             text: "Proxy server"
@@ -276,22 +254,9 @@ Page {
 
     states: [
         State {name: "disabled"
-//            PropertyChanges {target: nameTextEdit; visible: false }
-//            PropertyChanges {target: ipTextEdit; visible: false }
-//            PropertyChanges {target: portTextEdit; visible: false }
             PropertyChanges {target: proxyField; visible: false }
-//            PropertyChanges {target: userTextEdit; visible: false }
-//            PropertyChanges {target: passwordTextEdit; visible: false }
-//            PropertyChanges {target: proxyTypeSingleSelectionDialogButton; visible: false }
-
         },
         State {name: "enabled"
-//            PropertyChanges {target: nameTextEdit; visible: true }
-//            PropertyChanges {target: ipTextEdit; visible: false }
-//            PropertyChanges {target: portTextEdit; visible: false }
-//            PropertyChanges {target: userTextEdit; visible: false }
-//            PropertyChanges {target: passwordTextEdit; visible: false }
-//            PropertyChanges {target: proxyTypeSingleSelectionDialogButton; visible: false }
             PropertyChanges {target: proxyField; visible: true }
         }
 

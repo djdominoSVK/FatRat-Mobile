@@ -15,9 +15,8 @@ Dialog {
   property variant view: view1
   property string selectedFile: "";
 
-  // go down one view
+
   function down(path) {
-    // slide current view out to the left
     if (folderModel == folderModel1) {
       view = view2
       folderModel = folderModel2;
@@ -28,7 +27,7 @@ Dialog {
       view2.state = "exitLeft";
     }
 
-    // and slide new view in from right
+
     view.x = fileSelector.width;
     view.state = "current";
     view.focus = true;
@@ -107,7 +106,6 @@ Dialog {
         font: fileSelector.platformStyle.itemFont
       }
 
-      // add "right" arrow to all directories
       Image {
         id: downArrow
         source: "image://theme/icon-m-common-drilldown-arrow-inverse"
@@ -363,3 +361,5 @@ Dialog {
     }
   }
 }
+
+//source: http://wiki.meego.com/QML/FileSelector

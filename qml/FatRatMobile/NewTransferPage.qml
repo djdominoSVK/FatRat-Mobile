@@ -67,8 +67,6 @@ Page {
 
         TextArea {
             anchors.top: sourceText.bottom
-            //   anchors.topMargin: 10
-            //width: parent.width
             anchors.right: parent.right
             anchors.left: parent.left
             anchors.leftMargin: 10
@@ -106,7 +104,6 @@ Page {
             anchors.topMargin: 5
             width: 320
             height: 40
-            text: "/home/djdominoSVK/Downloads"
             font.pixelSize: 24
         }
 
@@ -118,7 +115,6 @@ Page {
             anchors.right: parent.right
             anchors.rightMargin: 10
             text: "Browse"
-            // onClicked: destinationTextInput.text = newTransfer.browse(destinationTextInput.text)
             onClicked:  directorySelector.open()
         }
 
@@ -236,13 +232,7 @@ Page {
             }
             onSelectedIndexChanged: {
                 addFilesSingleSelectionDialog.close()
-                if(selectedIndex==0){
-                    //sourceInput.text = newTransfer.browse2;
-                    test=newTransfer.browse2
-                }
                 if(selectedIndex==1){
-                    //sourceInput.text = newTransfer.browse2;
-                    test=newTransfer.addTextFile
                     sourceInput.text = test
                 }
                 selectedIndex= -1;
@@ -296,7 +286,6 @@ Page {
             elide: Text.ElideRight
 
             font {
-                //family: platformLabelStyle.fontFamily
                 pixelSize: 32
             }
             text: "New transfer"
@@ -306,19 +295,17 @@ Page {
     }
     tools: ToolBarLayout {
         id: pageSpecificTools
-        // ToolButton to move back to the HomePage
         ToolIcon {
-            anchors.right: parent.right
-            anchors.rightMargin: 5;
+            anchors.left: parent.left
+            anchors.leftMargin: 5;
             iconId: "toolbar-back"
-            // on click signal pop the page from the stack to go back
             onClicked: appWindow.pageStack.pop();
         }
         ToolButton{
-            anchors.left: parent.left
-            anchors.leftMargin: 5;
+            anchors.right: parent.right
+            anchors.rightMargin: 10;
             text: "Add to queue"
-            onClicked: if (sourceInput.text!== "") {
+            onClicked: if (sourceInput.text!== "" && destinationTextInput.text!="") {
                            newTransfer.createTransfer(sourceInput.text,
                                                       radioButton_download.checked,
                                                       -1,

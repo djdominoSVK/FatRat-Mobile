@@ -258,7 +258,6 @@ Page {
 
             }
 
-
             states: State {
                 name: "details"
                 PropertyChanges {target: iconBack; onClicked:{
@@ -361,7 +360,6 @@ Page {
                 topMargin: 10
             }
             color: "white"
-            //elide: Text.ElideRight
 
             font.pixelSize: 24
             text: "Download: 0.0 kB/s"
@@ -536,6 +534,7 @@ Page {
             id: iconDelete
             iconId: "toolbar-delete"
             visible: false
+            anchors.right: parent.right
             onClicked: deleteTransferDialog.open()
         }
         ToolIcon {
@@ -570,6 +569,7 @@ Page {
             id: iconBack
             iconId: "toolbar-back"
             visible: false
+            anchors.left: parent.left
         }
         ToolIcon {
             id: iconMenu

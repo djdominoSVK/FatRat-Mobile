@@ -149,16 +149,16 @@ Page {
     tools: ToolBarLayout {
         id: pageSpecificTools
         ToolIcon {
-            anchors.right: parent.right
-            anchors.rightMargin: 5;
+            anchors.left: parent.left
+            anchors.leftMargin: 5;
             iconId: "toolbar-back"
-            // on click signal pop the page from the stack to go back
             onClicked: appWindow.pageStack.pop();
         }
         ToolButton{
             property string numTransfers
-            anchors.left: parent.left
-            anchors.leftMargin: 5;
+            anchors.right: parent.right
+
+            anchors.rightMargin: 10;
             text: "Save"
             onClicked: {
                 if (!limitedTransfersCheckBox.checked){
@@ -206,7 +206,6 @@ Page {
             elide: Text.ElideRight
 
             font {
-                //family: platformLabelStyle.fontFamily
                 pixelSize: 32
             }
             text: "Settings"

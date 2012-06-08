@@ -19,7 +19,6 @@ extern QVector<EngineEntry> g_enginesDownload;
 extern QVector<EngineEntry> g_enginesUpload;
 
 static QueueMgr* g_qmgr = 0;
-//static void runEngines(bool init = true);
 QString m_strSettingsPath;
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
@@ -31,7 +30,9 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
 
     initSettingsDefaults(m_strSettingsPath);
+
     initTransferClasses();
+
     Transfer::runEngines(true);
 
     qRegisterMetaType<QString*>("QString*");
@@ -46,6 +47,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     TransfersModel tm;
     tm.setQueue(0);
     tm.refresh();
+
     TransfersMethods transfersMethods;
     SettingsMethods settingsMethods;
     settingsMethods.initSettings();
@@ -71,35 +73,5 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     return rval;
 }
 
-//static void runEngines(bool init)
-//{
-//        for(int i=0;i<g_enginesDownload.size();i++)
-//        {
-//                if(init)
-//                {
-//                        if(g_enginesDownload[i].lpfnInit)
-//                                g_enginesDownload[i].lpfnInit();
-//                }
-//                else
-//                {
-//                        if(g_enginesDownload[i].lpfnExit)
-//                                g_enginesDownload[i].lpfnExit();
-//                }
-//        }
-
-//        for(int i=0;i<g_enginesUpload.size();i++)
-//        {
-//                if(init)
-//                {
-//                        if(g_enginesUpload[i].lpfnInit)
-//                                g_enginesUpload[i].lpfnInit();
-//                }
-//                else
-//                {
-//                        if(g_enginesUpload[i].lpfnExit)
-//                                g_enginesUpload[i].lpfnExit();
-//                }
-//        }
-//}
 
 

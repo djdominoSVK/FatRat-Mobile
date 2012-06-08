@@ -17,13 +17,11 @@ public:
     Q_INVOKABLE QString getPassword();
     Q_INVOKABLE int getType();
 
-    Q_INVOKABLE QString getProxyName(){
-        return Proxy::getName();
-    }
-    Q_INVOKABLE bool isProxyEnabled(){
-        return Proxy::isProxyEnabled();
-    }
+    Q_INVOKABLE QString getProxyName();
+    Q_INVOKABLE bool isProxyEnabled();
     Q_INVOKABLE void saveProxy(int index, QString name,QString ip,QString port, QString user, QString pass, bool enabled);
+
+
     // common settings
     Q_INVOKABLE void saveSettings(QString refresh,QString down, QString up, QString maximum);
     Q_INVOKABLE void initSettings();
@@ -31,12 +29,6 @@ public:
     Q_INVOKABLE int getNetworkSpeedDown();
     Q_INVOKABLE int getNetworkSpeedUp();
     Q_INVOKABLE int getNetworkMaximum();
-//    Q_INVOKABLE void doneQueue(Queue* q, bool unlock);
-//    Q_INVOKABLE Queue* getQueue(int index, bool lock);
-    
-signals:
-    
-public slots:
     
 };
 

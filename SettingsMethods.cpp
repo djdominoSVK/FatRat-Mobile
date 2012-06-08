@@ -6,11 +6,21 @@ extern QSettings* g_settings;
 extern QList<Queue*> g_queues;
 extern QReadWriteLock g_queuesLock;
 
+/**
+ * @brief simple constructor
+ *
+ * @param parent
+ */
 SettingsMethods::SettingsMethods(QObject *parent) :
     QObject(parent)
 {
 }
 
+/**
+ * @brief getting proxy server ip
+ *
+ * @return QString proxy server ip
+ */
 QString SettingsMethods::getIp(){
    g_settings->beginReadArray("httpftp/proxys");
    g_settings->setArrayIndex(0);
@@ -19,6 +29,11 @@ QString SettingsMethods::getIp(){
    return ip;
 }
 
+/**
+ * @brief getting proxy server port
+ *
+ * @return QString proxy server port
+ */
 QString SettingsMethods::getPort(){
     g_settings->beginReadArray("httpftp/proxys");
     g_settings->setArrayIndex(0);
@@ -27,6 +42,11 @@ QString SettingsMethods::getPort(){
     return value;
 }
 
+/**
+ * @brief getting proxy server user
+ *
+ * @return QString proxy server user
+ */
 QString SettingsMethods::getUser(){
    g_settings->beginReadArray("httpftp/proxys");
    g_settings->setArrayIndex(0);
@@ -35,6 +55,11 @@ QString SettingsMethods::getUser(){
    return value;
 }
 
+/**
+ * @brief getting proxy server password
+ *
+ * @return QString proxy server password
+ */
 QString SettingsMethods::getPassword(){
     g_settings->beginReadArray("httpftp/proxys");
     g_settings->setArrayIndex(0);
@@ -42,6 +67,11 @@ QString SettingsMethods::getPassword(){
     g_settings->endArray();
     return value;
 }
+/**
+ * @brief getting proxy server type
+ *
+ * @return int proxy server type
+ */
 int SettingsMethods::getType(){
     g_settings->beginReadArray("httpftp/proxys");
     g_settings->setArrayIndex(0);
@@ -50,29 +80,59 @@ int SettingsMethods::getType(){
     return value;
 }
 
+/**
+ * @brief getting refresh frequency
+ *
+ * @return int refresh frequency
+ */
 int SettingsMethods::getRefresh(){
     return g_settings->value("gui_refresh").toInt();
 }
+/**
+ * @brief getting maximum download speed of network
+ *
+ * @return int maximum download speed of network
+ */
 int SettingsMethods::getNetworkSpeedDown(){
     return g_settings->value("network/speed_down").toInt();
 }
+/**
+ * @brief getting maximum upload speed of network
+ *
+ * @return int maximum upload speed of network
+ */
 int SettingsMethods::getNetworkSpeedUp(){
     return g_settings->value("network/speed_up").toInt();
 }
+/**
+ * @brief getting maximum transfers of network
+ *
+ * @return int maximum transfers of network
+ */
 int SettingsMethods::getNetworkMaximum(){
     return g_settings->value("network/maximum_transfers").toInt();
 }
 
+/**
+ * @brief setting up general settings
+ *
+ * @param refresh refresh frequency
+ * @param down maximum download speed of network
+ * @param up maximum upload speed of network
+ * @param maximum maximum transfers of network
+ */
 void SettingsMethods::saveSettings(QString refresh,QString down, QString up, QString maximum){
 
        g_settings->setValue("gui_refresh", refresh);
        g_settings->setValue("network/speed_down", down );
        g_settings->setValue("network/speed_up", up );
-
        g_settings->setValue("network/maximum_transfers", maximum);
-
-
 }
+
+/**
+ * @brief loading general settings, if first time initialize
+ *
+ */
 void SettingsMethods::initSettings(){
    int refresh = g_settings->value("gui_refresh").toInt();
    int speed_down = g_settings->value("network/speed_down").toInt();
@@ -105,34 +165,35 @@ void SettingsMethods::initSettings(){
    g_queuesLock.unlock();
 }
 
+/**
+ * @brief saving proxy settings
+ *
+ * @param index index
+ * @param name name
+ * @param ip ip
+ * @param port port
+ * @param user user
+ * @param pass password
+ * @param enabled true if enabled
+ */
 void SettingsMethods::saveProxy(int index, QString name,QString ip,QString port, QString user, QString pass, bool enabled) {
     Proxy::saveProxy(index, name,ip,port, user, pass,enabled);
 }
 
-//void SettingsMethods::doneQueue(Queue* q, bool unlock)
-//{
-//    if(q != 0)
-//    {
-//        if(unlock)
-//            q->unlock();
-//        g_queuesLock.unlock();
-//    }
-//}
+/**
+ * @brief getting proxy name
+ *
+ * @return QString
+ */
+QString SettingsMethods::getProxyName(){
+    return Proxy::getName();
+}
 
-//Queue* SettingsMethods::getQueue(int index, bool lock)
-//{
-//    g_queuesLock.lockForRead();
-
-//    if(index < 0 || index >= g_queues.size())
-//    {
-//        if(index != -1)
-//            qDebug() << "MainWindow::getQueue(): Invalid queue requested: " << index;
-//        g_queuesLock.unlock();
-//        return 0;
-//    }
-
-//    Queue* q = g_queues[index];
-//    if(lock)
-//        q->lock();
-//    return q;
-//}
+/**
+ * @brief returns true if proxy is enabled
+ *
+ * @return bool
+ */
+bool SettingsMethods::isProxyEnabled(){
+    return Proxy::isProxyEnabled();
+}

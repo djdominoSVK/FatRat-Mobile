@@ -1,21 +1,23 @@
-import QtQuick 1.0
-import com.nokia.meego 1.0
+import QtQuick 1.1
 import Qt.labs.folderlistmodel 1.0
+import com.nokia.symbian 1.1
+
 
 Dialog {
-  id: directorySelector
+  id: fileSelector
   width : parent.width - 30
-  property Style platformStyle: SelectionDialogStyle {}
+  //property Style platformStyle: SelectionDialogStyle {}
 
-  //just to avoid files
-  property variant filterList: [ "abcd98765" ]
+  property variant filterList: [ "*" ]
 
-  property string titleText: "Choose directory"
+  property string titleText: "File Selector"
   property variant folderModel: folderModel1
   property variant view: view1
   property string selectedFile: "";
 
+  // go down one view
   function down(path) {
+    // slide current view out to the left
     if (folderModel == folderModel1) {
       view = view2
       folderModel = folderModel2;
@@ -26,7 +28,8 @@ Dialog {
       view2.state = "exitLeft";
     }
 
-    view.x = directorySelector.width;
+    // and slide new view in from right
+    view.x = fileSelector.width;
     view.state = "current";
     view.focus = true;
     folderModel.folder = path;
@@ -45,11 +48,13 @@ Dialog {
       folderModel = folderModel1;
       view2.state = "exitRight";
     }
-    view.x = -directorySelector.width;
+    view.x = -fileSelector.width;
     view.state = "current";
     view.focus = true;
     folderModel.folder = path;
   }
+
+  property Component delegate:
 
   Component {
     id: defaultDelegate
@@ -58,7 +63,7 @@ Dialog {
       id: delegateItem
       property bool selected: filePath === selectedFile;
 
-      height: directorySelector.platformStyle.itemHeight
+      height: fileSelector.platformStyle.itemHeight
       anchors.left: parent.left
       anchors.right: parent.right
 
@@ -69,50 +74,53 @@ Dialog {
         onClicked:  {
           if (folderModel.isFolder(index))
              down(filePath);
+          else
+         accept();
         }
       }
 
       Rectangle {
         id: backgroundRect
         anchors.fill: parent
-        color: delegateItem.selected ? directorySelector.platformStyle.itemSelectedBackgroundColor : directorySelector.platformStyle.itemBackgroundColor
+        color: delegateItem.selected ? fileSelector.platformStyle.itemSelectedBackgroundColor : fileSelector.platformStyle.itemBackgroundColor
       }
 
       BorderImage {
         id: background
         anchors.fill: parent
         border { left: 22; top: 2; right: 2; bottom: 22 }
-        source: delegateMouseArea.pressed ? directorySelector.platformStyle.itemPressedBackground :
-        delegateItem.selected ? directorySelector.platformStyle.itemSelectedBackground :
-                directorySelector.platformStyle.itemBackground
+        source: delegateMouseArea.pressed ? fileSelector.platformStyle.itemPressedBackground :
+        delegateItem.selected ? fileSelector.platformStyle.itemSelectedBackground :
+                fileSelector.platformStyle.itemBackground
       }
 
       Text {
         id: itemText
         elide: Text.ElideRight
-        color: delegateItem.selected ? directorySelector.platformStyle.itemSelectedTextColor : directorySelector.platformStyle.itemTextColor
+        color: delegateItem.selected ? fileSelector.platformStyle.itemSelectedTextColor : fileSelector.platformStyle.itemTextColor
         anchors.verticalCenter: delegateItem.verticalCenter
         anchors.left: parent.left
         anchors.right: folderModel.isFolder(index)?downArrow.left:parent.right
-        anchors.leftMargin: directorySelector.platformStyle.itemLeftMargin
-        anchors.rightMargin: directorySelector.platformStyle.itemRightMargin
-        text: fileName
-        font: directorySelector.platformStyle.itemFont
+        anchors.leftMargin: fileSelector.platformStyle.itemLeftMargin
+        anchors.rightMargin: fileSelector.platformStyle.itemRightMargin
+        text: fileName;
+        font: fileSelector.platformStyle.itemFont
       }
 
+      // add "right" arrow to all directories
       Image {
         id: downArrow
         source: "image://theme/icon-m-common-drilldown-arrow-inverse"
         anchors.right: parent.right;
         anchors.verticalCenter: parent.verticalCenter
-        visible: folderModel.isFolder(index)
+    visible: folderModel.isFolder(index)
       }
     }
   }
 
   title: Item {
     id: header
-    height: directorySelector.platformStyle.titleBarHeight
+    height: fileSelector.platformStyle.titleBarHeight
 
     anchors.left: parent.left
     anchors.right: parent.right
@@ -130,25 +138,25 @@ Dialog {
         anchors.right: closeButton.left
 
         anchors.bottom:  parent.bottom
-        anchors.bottomMargin: directorySelector.platformStyle.titleBarLineMargin
+        anchors.bottomMargin: fileSelector.platformStyle.titleBarLineMargin
 
         height: titleLabel.height
 
         Label {
           id: titleLabel
-          x: directorySelector.platformStyle.titleBarIndent
+          x: fileSelector.platformStyle.titleBarIndent
           width: parent.width - closeButton.width
-          font: directorySelector.platformStyle.titleBarFont
-          color: directorySelector.platformStyle.commonLabelColor
-          elide: directorySelector.platformStyle.titleElideMode
-          text: directorySelector.titleText
+          font: fileSelector.platformStyle.titleBarFont
+          color: fileSelector.platformStyle.commonLabelColor
+          elide: fileSelector.platformStyle.titleElideMode
+          text: fileSelector.titleText
         }
       }
 
       Image {
         id: closeButton
         anchors.bottom:  parent.bottom
-        anchors.bottomMargin: directorySelector.platformStyle.titleBarLineMargin-6
+        anchors.bottomMargin: fileSelector.platformStyle.titleBarLineMargin-6
         anchors.right: labelField.right
 
         opacity: closeButtonArea.pressed ? 0.5 : 1.0
@@ -157,7 +165,7 @@ Dialog {
         MouseArea {
           id: closeButtonArea
           anchors.fill: parent
-          onClicked:  {directorySelector.reject();}
+          onClicked:  {fileSelector.reject();}
         }
       }
     }
@@ -180,24 +188,27 @@ Dialog {
     id: contentField
 
     property int maxListViewHeight : visualParent ? visualParent.height * 0.87
-        - directorySelector.platformStyle.titleBarHeight
-        - directorySelector.platformStyle.contentSpacing - 50
-       : directorySelector.parent ? directorySelector.parent.height * 0.87
-        - directorySelector.platformStyle.titleBarHeight
-        - directorySelector.platformStyle.contentSpacing - 50
+        - fileSelector.platformStyle.titleBarHeight
+        - fileSelector.platformStyle.contentSpacing - 50
+       : fileSelector.parent ? fileSelector.parent.height * 0.87
+        - fileSelector.platformStyle.titleBarHeight
+        - fileSelector.platformStyle.contentSpacing - 50
      : 350
 
     height: maxListViewHeight
-    width: directorySelector.width
-    y : directorySelector.platformStyle.contentSpacing
+    width: fileSelector.width
+    y : fileSelector.platformStyle.contentSpacing
     clip: true
+
+    // we have two list views and are shifting them left and right
+    // for nice animation
 
     Item {
       id: pathItem
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.top:  parent.top
-      height: directorySelector.platformStyle.itemHeight
+      height: fileSelector.platformStyle.itemHeight
 
       property bool canGoUp: folderModel.parentFolder != "" && folderModel.folder != folderModel.parentFolder
 
@@ -208,8 +219,15 @@ Dialog {
         onClicked:  { up(); }
       }
 
+      // add "left" arrow to go up one directory
       Image {
         id: backButton
+        //source: "image://theme/icon-m-startup-back"
+        // fix Fremantle CSSU icon availability
+
+        //source: platform.incompleteTheme() ? "image://theme/icon-m-toolbar-back-white-selected" :
+        //"image://theme/icon-m-startup-back"
+
         source :"image://theme/icon-m-startup-back"
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
@@ -218,8 +236,8 @@ Dialog {
 
       Label {
         id: pathLabel
-        font: directorySelector.platformStyle.itemFont
-        color: directorySelector.platformStyle.itemTextColor
+        font: fileSelector.platformStyle.itemFont
+        color: fileSelector.platformStyle.itemTextColor
         elide: Text.ElideLeft
 
         text: folderModel.folder
@@ -228,8 +246,8 @@ Dialog {
         anchors.left: backButton.right
         anchors.right: parent.right
 
-        anchors.leftMargin: directorySelector.platformStyle.itemLeftMargin
-        anchors.rightMargin: directorySelector.platformStyle.itemRightMargin
+        anchors.leftMargin: fileSelector.platformStyle.itemLeftMargin
+        anchors.rightMargin: fileSelector.platformStyle.itemRightMargin
       }
 
       Rectangle {
@@ -260,7 +278,7 @@ Dialog {
         anchors.bottom: parent.bottom
         x: 0
         width: parent.width
-        pressDelay: directorySelector.platformStyle.pressDelay
+        pressDelay: fileSelector.platformStyle.pressDelay
 
         FolderListModel {
           id: folderModel1
@@ -297,7 +315,7 @@ Dialog {
         anchors.bottom: parent.bottom
         x: parent.width
         width: parent.width
-        pressDelay: directorySelector.platformStyle.pressDelay
+        pressDelay: fileSelector.platformStyle.pressDelay
 
         FolderListModel {
           id: folderModel2
@@ -329,41 +347,6 @@ Dialog {
       }
     }
 
-    Item {
-        id: selectFolder
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom:  parent.bottom
-        height: directorySelector.platformStyle.itemHeight
-
-        Rectangle {
-            anchors.fill: parent
-            color: "black"
-
-            MouseArea {
-                id: selectFolderArea
-                anchors.fill: parent
-                onClicked:  { accept(); }
-            }
-
-            Label {
-                id: selectFolderLabel
-                font: directorySelector.platformStyle.itemFont
-                color: directorySelector.platformStyle.itemTextColor
-                elide: Text.ElideLeft
-
-                text: "Select folder"
-
-                anchors.centerIn: parent
-
-
-                anchors.leftMargin: directorySelector.platformStyle.itemLeftMargin
-                anchors.rightMargin: directorySelector.platformStyle.itemRightMargin
-            }
-        }
-    }
-
-
     MouseArea {
       property int xPos
       enabled: false
@@ -380,6 +363,3 @@ Dialog {
     }
   }
 }
-
-//source http://wiki.meego.com/QML/FileSelector
-//added button for selecting and edited to work with selecting folders only

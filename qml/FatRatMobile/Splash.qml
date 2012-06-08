@@ -9,7 +9,7 @@ Page {
     Image {
         id: splashImage
         source: "images/splash.png"
-        anchors.fill: parent // do specify the size and position
+        anchors.fill: parent
     }
 
     SequentialAnimation {

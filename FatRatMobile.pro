@@ -50,7 +50,6 @@ SOURCES += main.cpp \
     engines/FtpClient.cpp \
     plugins/Plugins.cpp \
     SettingsMethods.cpp \
-    TransferMethods.cpp \
     TransfersMethods.cpp
 
 # Please do not modify the following two lines. Required for deployment.
